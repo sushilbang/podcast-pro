@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import ClientOnly from "@/components/ui/client-only"; // FIXED PATH
 import Header from "@/components/layout/Header"; // FIXED PATH
 import AudioPlayer from "@/components/ui/AudioPlayer";
+import ConversionAnimation from "@/components/dashboard/ConversionAnimation";
 
 // Define the backend API UR
 const API_URL = "http://127.0.0.1:8000";
@@ -182,16 +183,19 @@ export default function DashboardPage() {
                       </ClientOnly>
                     </CardHeader>
                     <CardContent>
-                      <p>Status: <span className="font-semibold">{podcast.status}</span></p>
                       {podcast.status === 'complete' ? (
-                        <Button
-                          onClick={() => setCurrentlyPlaying(podcast)}
-                          className="mt-4"
-                        >
-                          Listen Now
-                        </Button>
+                        <>
+                          <p>Status: <span className="font-semibold capitalize text-green-600">{podcast.status}</span></p>
+                          <Button
+                            onClick={() => setCurrentlyPlaying(podcast)}
+                            className="mt-4"
+                          >
+                            Listen Now
+                          </Button>
+                        </>
                       ) : (
-                        <p className="text-sm text-gray-500 mt-2">Processing... please wait.</p>
+                        /* If it's pending, processing, or failed, show our animation component */
+                        <ConversionAnimation status={podcast.status} />
                       )}
                     </CardContent>
                   </Card>

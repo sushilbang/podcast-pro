@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { FileText, Headphones, Zap, Clock, Star, Play, Download, Smartphone } from "lucide-react"
 import Link from "next/link"
+import ConversionAnimation from "@/components/ui/conversion-animation"
 
 export default function LandingPage() {
   return (
@@ -20,6 +21,9 @@ export default function LandingPage() {
           </Link>
           <Link className="text-sm font-medium hover:text-primary transition-colors" href="#how-it-works">
             How It Works
+          </Link>
+          <Link className="text-sm font-medium hover:text-primary transition-colors" href="#demo">
+            Demo
           </Link>
           <Link className="text-sm font-medium hover:text-primary transition-colors" href="#pricing">
             Pricing
@@ -106,6 +110,13 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Demo Animation Section */}
+        <section id="demo" className="w-full py-12 md:py-24 lg:py-32 bg-muted/30">
+          <div className="container px-4 md:px-6">
+            <ConversionAnimation />
           </div>
         </section>
 
