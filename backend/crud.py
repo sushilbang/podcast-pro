@@ -29,3 +29,6 @@ def create_podcast_for_user(db: Session, podcast: schemas.PodcastCreate, user_id
 
 def get_podcast(db: Session, podcast_id: int):
     return db.query(models.Podcast).filter(models.Podcast.id == podcast_id).first()
+
+def get_podcasts_by_user(db: Session, user_id: int):
+    return db.query(models.Podcast).filter(models.Podcast.owner_id == user_id).order_by(models.Podcast.created_at.desc()).all()
