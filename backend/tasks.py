@@ -66,34 +66,34 @@ def create_podcast_task(podcast_id: int):
         
         print(f"[{podcast.id}] Text extracted successfully. Length: {len(source_text)} chars.")
 
-        # print(f"[{podcast.id}] Generating script with Gemini...")
+        print(f"[{podcast.id}] Generating script with Gemini...")
 
-        # # This is where your prompt engineering magic happens!
-        # prompt = """You are a world-class podcast scriptwriter. Your task is to transform the provided text into a 3-5 minute, engaging, and conversational podcast script.
+        # This is where your prompt engineering magic happens!
+        prompt = """You are a world-class podcast scriptwriter. Your task is to transform the provided text into a 3-5 minute, engaging, and conversational podcast script.
 
-        # Structure it with a brief musical intro, a host introduction, a clear breakdown of the key points from the text, and a concluding summary. Use a friendly and educational tone.
+        Structure it with a brief musical intro, a host introduction, a clear breakdown of the key points from the text, and a concluding summary. Use a friendly and educational tone.
 
-        # Here is the text to summarize:
+        Here is the text to summarize:
 
-        # ---
-        # {text_to_summarize}
-        # ---
-        # """
+        ---
+        {text_to_summarize}
+        ---
+        """
 
-        # # We might need to truncate the source_text if it's too long
-        # max_chars = 15000 
-        # truncated_text = source_text[:max_chars]
+        # We might need to truncate the source_text if it's too long
+        max_chars = 15000 
+        truncated_text = source_text[:max_chars]
 
-        # # Create the Gemini model instance
-        # model = genai.GenerativeModel('gemini-1.5-flash') # Use 'gemini-1.5-pro' for higher quality but more cost
+        # Create the Gemini model instance
+        model = genai.GenerativeModel('gemini-1.5-flash') # Use 'gemini-1.5-pro' for higher quality but more cost
 
-        # # Generate the content
-        # response = model.generate_content(prompt.format(text_to_summarize=truncated_text))
+        # Generate the content
+        response = model.generate_content(prompt.format(text_to_summarize=truncated_text))
 
-        # # Extract the text from the response
-        # script = response.text
+        # Extract the text from the response
+        script = response.text
 
-        script = "This is a short test to see if the UI updates correctly."
+        # script = "This is a short test to see if the UI updates correctly."
 
         if not script:
             raise ValueError("Gemini failed to generate a script.")
