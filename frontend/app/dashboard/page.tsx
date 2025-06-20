@@ -1,22 +1,31 @@
+// frontend/app/dashboard/page.tsx
+
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { supabase } from '@/lib/supabase';
-import ClientOnly from "@/components/ui/client-only"; // FIXED PATH
-import Header from "@/components/layout/Header"; // FIXED PATH
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { supabase } from "@/lib/supabase";
+import ClientOnly from "@/components/ui/client-only";
+import Header from "@/components/layout/Header";
 import AudioPlayer from "@/components/ui/AudioPlayer";
 import ConversionAnimation from "@/components/dashboard/ConversionAnimation";
+import { toast } from "sonner";
+import { Loader2, Download } from "lucide-react";
 
-// Define the backend API UR
 const API_URL = "http://127.0.0.1:8000";
 
 type Podcast = {
   id: number;
-  status: 'pending' | 'processing' | 'complete' | 'failed';
+  status: "pending" | "processing" | "complete" | "failed";
   original_file_url: string | null;
   final_podcast_url: string | null;
   created_at: string;
@@ -28,33 +37,46 @@ export default function DashboardPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [uploadStatus, setUploadStatus] = useState("");
-  const [currentlyPlaying, setCurrentlyPlaying] = useState<Podcast | null>(null);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<Podcast | null>(
+    null
+  );
+  const [isFetchingPodcasts, setIsFetchingPodcasts] = useState(true);
+  const [dragOver, setDragOver] = useState(false);
+  const [fileSizeMB, setFileSizeMB] = useState<number>(0);
+
+  const MAX_SIZE_MB = 10;
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-      }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) router.push("/login");
     };
     checkUser();
   }, [router]);
 
   useEffect(() => {
     const fetchPodcasts = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (session) {
         const token = session.access_token;
         try {
           const response = await fetch(`${API_URL}/podcasts/`, {
-            headers: { 'Authorization': `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}` },
           });
           if (response.ok) {
             const userPodcasts: Podcast[] = await response.json();
             setPodcasts(userPodcasts);
+          } else {
+            toast.error("Could not fetch your existing podcasts.");
           }
         } catch (error) {
-          console.error("Failed to fetch podcasts:", error);
+          toast.error("Failed to connect to the server.");
+        } finally {
+          setIsFetchingPodcasts(false);
         }
       }
     };
@@ -63,20 +85,33 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const processingPodcasts = podcasts.filter(p => p.status === 'pending' || p.status === 'processing');
+      const processingPodcasts = podcasts.filter(
+        (p) => p.status === "pending" || p.status === "processing"
+      );
+      if (processingPodcasts.length === 0) return;
+
       processingPodcasts.forEach(async (podcast) => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if(!session) return;
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session) return;
         try {
-          const response = await fetch(`${API_URL}/podcasts/${podcast.id}`,{
-              headers: { 'Authorization': `Bearer ${session.access_token}` },
+          const response = await fetch(`${API_URL}/podcasts/${podcast.id}`, {
+            headers: { Authorization: `Bearer ${session.access_token}` },
           });
           if (response.ok) {
             const updatedPodcast: Podcast = await response.json();
             if (updatedPodcast.status !== podcast.status) {
-              setPodcasts(prevPodcasts => 
-                prevPodcasts.map(p => p.id === updatedPodcast.id ? updatedPodcast : p)
+              setPodcasts((prev) =>
+                prev.map((p) =>
+                  p.id === updatedPodcast.id ? updatedPodcast : p
+                )
               );
+              if (updatedPodcast.status === "complete") {
+                toast.success(`Podcast #${updatedPodcast.id} is ready!`);
+              } else if (updatedPodcast.status === "failed") {
+                toast.error(`Podcast #${updatedPodcast.id} failed to process.`);
+              }
             }
           }
         } catch (error) {
@@ -87,70 +122,108 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [podcasts]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
+  const handleFileSelect = (file: File | undefined) => {
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      toast.error("Invalid File Type", {
+        description: "Only PDF files are accepted.",
+      });
+      return;
     }
+
+    const sizeInMB = file.size / (1024 * 1024);
+    if (sizeInMB > MAX_SIZE_MB) {
+      toast.error("File Too Large", {
+        description: `Your file must be smaller than ${MAX_SIZE_MB}MB.`,
+      });
+      return;
+    }
+
+    setSelectedFile(file);
+    setFileSizeMB(sizeInMB);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!selectedFile) {
-      alert("Please select a file first.");
+      toast.error("No file selected.");
       return;
     }
+
     setIsUploading(true);
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session) {
-      alert("You must be logged in to create a podcast.");
+      toast.error("Authentication Error", {
+        description: "You must be logged in to create a podcast.",
+      });
       setIsUploading(false);
       return;
     }
     const token = session.access_token;
+
     try {
       setUploadStatus("Getting upload link...");
       const presignedUrlResponse = await fetch(`${API_URL}/uploads/sign-url/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ filename: selectedFile.name }),
       });
-      if (!presignedUrlResponse.ok) throw new Error("Failed to get pre-signed URL.");
+      if (!presignedUrlResponse.ok)
+        throw new Error("Could not get a secure upload link from the server.");
       const { url, fields } = await presignedUrlResponse.json();
-      const fileUrlInS3 = `${url}${fields.key}`;
-      setUploadStatus("Uploading file to S3...");
+
+      setUploadStatus("Uploading to S3...");
       const formData = new FormData();
       Object.entries(fields).forEach(([key, value]) => {
         formData.append(key, value as string);
       });
       formData.append("file", selectedFile);
-      const uploadResponse = await fetch(url, { method: 'POST', body: formData });
-      if (!uploadResponse.ok) {
-        const errorText = await uploadResponse.text();
-        console.error("S3 upload error response:", errorText);
-        throw new Error("S3 upload failed.");
-      }
+      const uploadResponse = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+      if (!uploadResponse.ok)
+        throw new Error("File upload failed. Please try again.");
+
       setUploadStatus("Creating podcast job...");
       const createPodcastResponse = await fetch(`${API_URL}/podcasts/`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ original_file_url: fileUrlInS3 }),
+        body: JSON.stringify({ original_file_url: `${url}${fields.key}` }),
       });
-      if (!createPodcastResponse.ok) throw new Error('Failed to create podcast job.');
+
+      if (!createPodcastResponse.ok) {
+        const errorData = await createPodcastResponse.json();
+        if (createPodcastResponse.status === 429) {
+          toast.error("Limit Reached", { description: errorData.detail });
+        } else {
+          throw new Error(
+            errorData.detail || "Server failed to start the podcast job."
+          );
+        }
+        return;
+      }
+
       const newPodcast: Podcast = await createPodcastResponse.json();
-      setPodcasts(prevPodcasts => [newPodcast, ...prevPodcasts]);
-      setSelectedFile(null);
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      if (fileInput) fileInput.value = "";
-    } catch (error) {
-      console.error("Upload process failed:", error);
-      alert("An error occurred. Please check the console.");
+      setPodcasts((prev) => [newPodcast, ...prev]);
+      toast.success("Your new podcast is being created!");
+    } catch (error: any) {
+      toast.error("Upload Process Failed", { description: error.message });
     } finally {
       setIsUploading(false);
       setUploadStatus("");
+      setSelectedFile(null);
+      setFileSizeMB(0);
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      if (fileInput) fileInput.value = "";
     }
   };
 
@@ -160,53 +233,131 @@ export default function DashboardPage() {
       <main className="flex flex-col items-center p-4 sm:p-8 md:p-12">
         <div className="z-10 w-full max-w-5xl">
           <section className="mb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">Create a New Podcast</h2>
-            <form onSubmit={handleSubmit} className="flex w-full max-w-lg mx-auto items-center space-x-2">
-              <Input type="file" onChange={handleFileChange} required className="flex-grow" />
+            <h2 className="text-3xl font-bold text-center mb-8">
+              Create a New Podcast
+            </h2>
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col space-y-4 max-w-lg mx-auto"
+            >
+              <div
+                className={`relative border-2 border-dashed p-6 rounded-lg w-full text-center transition-all duration-300 ${
+                  dragOver
+                    ? "border-primary bg-primary/10"
+                    : "border-gray-300 dark:border-gray-600"
+                }`}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  handleFileSelect(e.dataTransfer.files?.[0]);
+                }}
+              >
+                <Input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => handleFileSelect(e.target.files?.[0])}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  id="file-upload"
+                  disabled={isUploading}
+                />
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <p className="text-muted-foreground mb-2">
+                    Drag & drop your PDF here or click to browse
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    (Max {MAX_SIZE_MB}MB)
+                  </p>
+                </label>
+                {selectedFile && (
+                  <div className="mt-4 text-sm font-medium text-foreground">
+                    Selected: {selectedFile.name} ({fileSizeMB.toFixed(2)} MB)
+                  </div>
+                )}
+              </div>
               <Button type="submit" disabled={!selectedFile || isUploading}>
-                {isUploading ? uploadStatus : "Create Podcast"}
+                {isUploading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {uploadStatus}
+                  </>
+                ) : (
+                  "Create Podcast"
+                )}
               </Button>
             </form>
           </section>
+
           <section>
-            <h2 className="text-3xl font-bold text-center mb-8">Your Podcasts</h2>
+            <h2 className="text-3xl font-bold text-center mb-8">
+              Your Podcasts
+            </h2>
             <div className="space-y-4">
-              {podcasts.length > 0 ? (
+              {isFetchingPodcasts ? (
+                <div className="flex flex-col items-center justify-center py-10">
+                  <div className="flex items-center justify-center space-x-2 py-4">
+                      <span className="loading loading-dots loading-xl"></span>
+                  </div>
+                  <p>Loading your podcasts...</p>
+                </div>
+              ) : podcasts.length > 0 ? (
                 podcasts.map((podcast) => (
                   <Card key={podcast.id}>
                     <CardHeader>
                       <CardTitle>Podcast #{podcast.id}</CardTitle>
                       <ClientOnly>
                         <CardDescription>
-                          Created on: {new Date(podcast.created_at).toLocaleString()}
+                          Created on:{" "}
+                          {new Date(podcast.created_at).toLocaleString()}
                         </CardDescription>
                       </ClientOnly>
                     </CardHeader>
                     <CardContent>
-                      {podcast.status === 'complete' ? (
+                      {podcast.status === "complete" ? (
                         <>
-                          <p>Status: <span className="font-semibold capitalize text-green-600">{podcast.status}</span></p>
-                          <Button
-                            onClick={() => setCurrentlyPlaying(podcast)}
-                            className="mt-4"
-                          >
-                            Listen Now
-                          </Button>
+                          <p>
+                            Status:{" "}
+                            <span className="font-semibold capitalize text-green-600">
+                              {podcast.status}
+                            </span>
+                          </p>
+                          <div className="mt-4 flex flex-wrap items-center gap-2">
+                            <Button
+                              onClick={() => setCurrentlyPlaying(podcast)}
+                            >
+                              Listen Now
+                            </Button>
+                            <Button asChild variant="outline">
+                              <a
+                                href={podcast.final_podcast_url || "#"}
+                                download={`Podcast_#${podcast.id}.mp3`}
+                              >
+                                <Download className="mr-2 h-4 w-4" />
+                                Download
+                              </a>
+                            </Button>
+                          </div>
                         </>
                       ) : (
-                        /* If it's pending, processing, or failed, show our animation component */
                         <ConversionAnimation status={podcast.status} />
                       )}
                     </CardContent>
                   </Card>
                 ))
               ) : (
-                <p className="text-center text-gray-500">You haven't created any podcasts yet.</p>
+                <p className="text-center text-gray-500">
+                  You haven't created any podcasts yet.
+                </p>
               )}
             </div>
           </section>
         </div>
       </main>
+
       {currentlyPlaying && (
         <AudioPlayer
           podcast={currentlyPlaying}

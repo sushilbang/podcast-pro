@@ -17,6 +17,8 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     podcasts = relationship("Podcast", back_populates="owner")
+    podcast_limit = Column(Integer, default=1)
+    podcasts_created = Column(Integer, default=0)
 
 class Podcast(Base):
     __tablename__ = "Podcast"

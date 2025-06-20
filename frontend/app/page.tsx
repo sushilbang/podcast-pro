@@ -12,8 +12,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="px-4 lg:px-6 h-16 flex items-center border-b">
         <Link className="flex items-center justify-center" href="/">
-          <Headphones className="h-8 w-8 text-primary" />
-          <span className="ml-2 text-2xl font-bold">Podcast Pro</span>
+          <span className="ml-2 text-2xl font-bold">Pod🎧</span>
         </Link>
         <nav className="ml-auto hidden md:flex gap-6">
           <Link className="text-sm font-medium hover:text-primary transition-colors" href="#features">
@@ -24,9 +23,6 @@ export default function LandingPage() {
           </Link>
           <Link className="text-sm font-medium hover:text-primary transition-colors" href="#demo">
             Demo
-          </Link>
-          <Link className="text-sm font-medium hover:text-primary transition-colors" href="#pricing">
-            Pricing
           </Link>
         </nav>
         <div className="ml-4 flex items-center gap-2">
@@ -69,14 +65,12 @@ export default function LandingPage() {
                   </Button>
                 </div>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
+                  {/* <div className="flex items-center gap-1">
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                     <span className="font-medium">4.9/5</span>
-                  </div>
-                  <span>•</span>
-                  <span>10,000+ podcasts created</span>
-                  <span>•</span>
-                  <span>No credit card required</span>
+                  </div> */}
+                  <span>• 10+ podcasts created</span>
+                  <span>• No credit card required</span>
                 </div>
               </div>
               <div className="flex items-center justify-center">

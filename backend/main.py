@@ -92,27 +92,31 @@ def create_upload_url(request: SignedURLRequest): # It now expects a JSON body
     except ClientError as e:
         print(f"Error generating pre-signed URL: {e}")
         raise HTTPException(status_code=400, detail="Could not generate upload URL")
-
+    
 @app.post("/podcasts/", response_model=schemas.Podcast, status_code=202)
 def create_podcast(
     podcast: schemas.PodcastCreate,
-    current_user: models.User = Depends(get_current_user), # Use the new dependency
+    current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # dummy_user_email = "test@example.com"
+    # Get the user's record from our database
     db_user = crud.get_user_by_email(db, email=current_user.email)
-
     if not db_user:
+        # If they don't exist in our table yet, create them
         db_user = crud.create_user(db, user=schemas.UserCreate(email=current_user.email))
-    
+
+    # The Database-Driven Limit Check
+    # Check the user's created count against their personal limit
+    if db_user.podcasts_created >= db_user.podcast_limit:
+        # If the limit is reached, send a specific error back to the frontend
+        raise HTTPException(
+            status_code=429,  # "Too Many Requests" - a standard code for rate limiting
+            detail="You have reached your podcast creation limit."
+        )
+
     db_podcast = crud.create_podcast_for_user(db=db, podcast=podcast, user_id=db_user.id)
-
-    # instead of doing all the work here, send the job to celery worker
-    # use .delay() to send the task to the queue
     tasks.create_podcast_task.delay(db_podcast.id)
-
-
-    # immedialtely return the podcast object just created, frontend will see the status as 'pending'
+    
     return db_podcast
 
 @app.get("/podcasts/{podcast_id}", response_model=schemas.Podcast)
