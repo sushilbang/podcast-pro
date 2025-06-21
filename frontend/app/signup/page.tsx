@@ -7,9 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { Headphones, Eye, EyeOff, Mail, Lock, User, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { toast } from "sonner";
@@ -71,8 +70,7 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
       <header className="px-4 lg:px-6 h-16 flex items-center border-b bg-background/80 backdrop-blur-sm">
         <Link className="flex items-center justify-center" href="/">
-          <Headphones className="h-8 w-8 text-primary" />
-          <span className="ml-2 text-2xl font-bold">Podcast Pro</span>
+          <span className="ml-2 text-2xl font-bold">Pod🎧</span>
         </Link>
         <div className="ml-auto">
           <Button variant="ghost" size="sm" asChild>
