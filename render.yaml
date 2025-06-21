@@ -1,0 +1,71 @@
+# render.yaml - Placed in the root of your project
+
+services:
+  # 1. The Redis instance for Celery
+  - name: podcast-pro-redis
+    type: redis
+    plan: free # Use 'standard' for production with no idle timeouts
+    ipAllowList: [] # Allows Vercel and your local machine to connect
+
+  # 2. The FastAPI Web Service (API)
+  - name: podcast-pro-api
+    type: web
+    runtime: python
+    plan: free # Use 'starter' for production to prevent sleeping
+    region: frankfurt # Choose a region close to you/your users
+    rootDir: ./backend
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: "/"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DATABASE_URL
+        # This will be automatically set if you connect Supabase as an external DB
+        # For now, you can also paste the value directly from your .env file
+        value: "YOUR_SUPABASE_DATABASE_URL"
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: podcast-pro-redis
+      - fromGroup: backend-secrets
+
+  # 3. The Celery Background Worker
+  - name: podcast-pro-worker
+    type: worker
+    runtime: python
+    plan: free
+    region: frankfurt
+    rootDir: ./backend
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "celery -A backend.celery_worker worker --loglevel=info"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DATABASE_URL
+        value: "YOUR_SUPABASE_DATABASE_URL"
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: podcast-pro-redis
+      - fromGroup: backend-secrets
+
+envVarGroups:
+  - name: backend-secrets
+    envVars:
+      - key: SUPABASE_URL
+        value: YOUR_SUPABASE_URL_HERE
+      - key: SUPABASE_KEY
+        value: YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE
+      - key: AWS_ACCESS_KEY_ID
+        value: YOUR_AWS_KEY_ID_HERE
+      - key: AWS_SECRET_ACCESS_KEY
+        value: YOUR_AWS_SECRET_KEY_HERE
+      - key: AWS_S3_BUCKET_NAME
+        value: YOUR_BUCKET_NAME_HERE
+      - key: GOOGLE_API_KEY
+        value: YOUR_GOOGLE_KEY_HERE
+      - key: ELEVENLABS_API_KEY
+        value: YOUR_ELEVENLABS_KEY_HERE
+      - key: API_GENERATION_ENABLED
+        value: "true"
