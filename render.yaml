@@ -28,7 +28,8 @@ services:
         fromService:
           type: redis
           name: podcast-pro-redis
-      - fromGroup: backend-secrets
+          property: connectionString
+
 
   # 3. The Celery Background Worker
   - name: podcast-pro-worker
@@ -48,6 +49,7 @@ services:
         fromService:
           type: redis
           name: podcast-pro-redis
+          property: connectionString
       - fromGroup: backend-secrets
 
 envVarGroups:
