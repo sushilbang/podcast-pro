@@ -18,6 +18,7 @@ import ClientOnly from "@/components/ui/client-only";
 import Header from "@/components/layout/Header";
 import AudioPlayer from "@/components/ui/AudioPlayer";
 import ConversionAnimation from "@/components/dashboard/ConversionAnimation";
+import WelcomeDialog from "@/components/dashboard/WelcomeDialog";
 import { toast } from "sonner";
 import { Loader2, Download } from "lucide-react";
 
@@ -43,6 +44,7 @@ export default function DashboardPage() {
   const [isFetchingPodcasts, setIsFetchingPodcasts] = useState(true);
   const [dragOver, setDragOver] = useState(false);
   const [fileSizeMB, setFileSizeMB] = useState<number>(0);
+  const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
 
   const MAX_SIZE_MB = 10;
 
@@ -55,6 +57,13 @@ export default function DashboardPage() {
     };
     checkUser();
   }, [router]);
+
+  useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem('hasSeenWelcomeMessage');
+    if (!hasSeenWelcome) {
+      setShowWelcomeDialog(true);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchPodcasts = async () => {
@@ -110,7 +119,7 @@ export default function DashboardPage() {
               if (updatedPodcast.status === "complete") {
                 toast.success(`Podcast #${updatedPodcast.id} is ready!`);
               } else if (updatedPodcast.status === "failed") {
-                toast.error(`Podcast #${updatedPodcast.id} failed to process.`);
+                toast.error(`Podcast #${updatedPodcast.id} failed to process. Most likely the API limit was reached. Service will be back once the limit resets.`);
               }
             }
           }
@@ -142,6 +151,11 @@ export default function DashboardPage() {
 
     setSelectedFile(file);
     setFileSizeMB(sizeInMB);
+  };
+
+  const handleWelcomeDialogClose = () => {
+    localStorage.setItem('hasSeenWelcomeMessage', 'true');
+    setShowWelcomeDialog(false);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -200,14 +214,19 @@ export default function DashboardPage() {
 
       if (!createPodcastResponse.ok) {
         const errorData = await createPodcastResponse.json();
-        if (createPodcastResponse.status === 429) {
-          toast.error("Limit Reached", { description: errorData.detail });
+        if (createPodcastResponse.status === 503) {
+          toast.error("Service Temporarily Unavailable", {
+            description: errorData.detail,
+          });
+        } else if (createPodcastResponse.status === 429) {
+            toast.error("Limit Reached", {
+              description: errorData.detail,
+            });
         } else {
-          throw new Error(
-            errorData.detail || "Server failed to start the podcast job."
-          );
+          // Handle all other errors
+          throw new Error(errorData.detail || "Server failed to start the podcast job.");
         }
-        return;
+        return; 
       }
 
       const newPodcast: Podcast = await createPodcastResponse.json();
@@ -364,6 +383,11 @@ export default function DashboardPage() {
           onClose={() => setCurrentlyPlaying(null)}
         />
       )}
+
+      <WelcomeDialog
+        isOpen={showWelcomeDialog}
+        onClose={handleWelcomeDialogClose}
+      />
     </div>
   );
 }

@@ -1,4 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, Header
+from fastapi_limiter import FastAPILimiter
+from fastapi_limiter.depends import RateLimiter
+import redis.asyncio as redis
 from typing import Annotated
 from supabase import create_client, Client
 
@@ -92,13 +95,30 @@ def create_upload_url(request: SignedURLRequest): # It now expects a JSON body
     except ClientError as e:
         print(f"Error generating pre-signed URL: {e}")
         raise HTTPException(status_code=400, detail="Could not generate upload URL")
+
+@app.on_event("startup")
+async def startup():
+    # Use the Redis URL from your environment variables
+    redis_url = os.getenv("REDIS_URL", "redis://localhost")
+    # For rediss:// URLs, we need to handle SSL
+    if redis_url.startswith("rediss://"):
+        redis_connection = redis.from_url(redis_url, ssl_cert_reqs=None)
+    else:
+        redis_connection = redis.from_url(redis_url)
     
-@app.post("/podcasts/", response_model=schemas.Podcast, status_code=202)
+    await FastAPILimiter.init(redis_connection)
+
+@app.post("/podcasts/", response_model=schemas.Podcast, status_code=202, dependencies=[Depends(RateLimiter(times=10, minutes=5))])
 def create_podcast(
     podcast: schemas.PodcastCreate,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    if os.getenv("API_GENERATION_ENABLED", "true").lower() != "true":
+        raise HTTPException(
+            status_code=503, # 503 = Service Unavailable
+            detail="Podcast generation is temporarily disabled due to high demand. Please try again later."
+        )
     # Get the user's record from our database
     db_user = crud.get_user_by_email(db, email=current_user.email)
     if not db_user:
