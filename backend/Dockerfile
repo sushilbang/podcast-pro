@@ -1,6 +1,19 @@
+# backend/Dockerfile
+
 FROM python:3.11-slim
 WORKDIR /code
-COPY ./requirements.txt /code/requirements.txt
+
+# Copy the requirements file from the 'backend' subfolder first
+COPY backend/requirements.txt /code/requirements.txt
+
+# Install the dependencies
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
-COPY . /code
+
+# This copies everything inside 'backend' into the '/code' directory in the container
+COPY backend/ . /code/
+
+# Expose the port
 EXPOSE 8080
+
+# The CMD line is now correct because all the backend code is inside /code
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
