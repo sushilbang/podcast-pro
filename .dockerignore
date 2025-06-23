@@ -1,0 +1,23 @@
+# Ignore the entire frontend directory for backend builds
+frontend/
+
+# Ignore Git history
+.git
+.gitignore
+
+# Ignore Python virtual environments
+.venv
+venv/
+env/
+
+# Ignore Python cache
+__pycache__
+*.pyc
+
+# Ignore environment files
+.env
+*.env.*
+
+# Ignore Fly build artifacts
+fly.toml
+fly.*.toml
