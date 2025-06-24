@@ -1,5 +1,3 @@
-// frontend/app/dashboard/page.tsx
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -22,7 +20,8 @@ import WelcomeDialog from "@/components/dashboard/WelcomeDialog";
 import { toast } from "sonner";
 import { Loader2, Download } from "lucide-react";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const isApiAvailable = !!API_URL;
 
 type Podcast = {
   id: number;
@@ -38,9 +37,7 @@ export default function DashboardPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [uploadStatus, setUploadStatus] = useState("");
-  const [currentlyPlaying, setCurrentlyPlaying] = useState<Podcast | null>(
-    null
-  );
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<Podcast | null>(null);
   const [isFetchingPodcasts, setIsFetchingPodcasts] = useState(true);
   const [dragOver, setDragOver] = useState(false);
   const [fileSizeMB, setFileSizeMB] = useState<number>(0);
@@ -50,9 +47,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const checkUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) router.push("/login");
     };
     checkUser();
@@ -66,10 +61,13 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
+    if (!isApiAvailable) {
+      setIsFetchingPodcasts(false);
+      return;
+    }
+
     const fetchPodcasts = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         const token = session.access_token;
         try {
@@ -89,10 +87,13 @@ export default function DashboardPage() {
         }
       }
     };
+
     fetchPodcasts();
   }, []);
 
   useEffect(() => {
+    if (!isApiAvailable) return;
+
     const interval = setInterval(() => {
       const processingPodcasts = podcasts.filter(
         (p) => p.status === "pending" || p.status === "processing"
@@ -100,9 +101,7 @@ export default function DashboardPage() {
       if (processingPodcasts.length === 0) return;
 
       processingPodcasts.forEach(async (podcast) => {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
         try {
           const response = await fetch(`${API_URL}/podcasts/${podcast.id}`, {
@@ -119,9 +118,7 @@ export default function DashboardPage() {
               if (updatedPodcast.status === "complete") {
                 toast.success(`Podcast #${updatedPodcast.id} is ready!`);
               } else if (updatedPodcast.status === "failed") {
-                toast.error(
-                  `Podcast #${updatedPodcast.id} failed to process. Most likely the API limit was reached. Service will be back once the limit resets.`
-                );
+                toast.error(`Podcast #${updatedPodcast.id} failed to process.`);
               }
             }
           }
@@ -130,6 +127,7 @@ export default function DashboardPage() {
         }
       });
     }, 5000);
+
     return () => clearInterval(interval);
   }, [podcasts]);
 
@@ -162,15 +160,19 @@ export default function DashboardPage() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     if (!selectedFile) {
       toast.error("No file selected.");
       return;
     }
 
+    if (!isApiAvailable) {
+      toast.error("Upload is disabled in demo mode.");
+      return;
+    }
+
     setIsUploading(true);
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       toast.error("Authentication Error", {
         description: "You must be logged in to create a podcast.",
@@ -178,6 +180,7 @@ export default function DashboardPage() {
       setIsUploading(false);
       return;
     }
+
     const token = session.access_token;
 
     try {
@@ -187,8 +190,10 @@ export default function DashboardPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ filename: selectedFile.name }),
       });
+
       if (!presignedUrlResponse.ok)
         throw new Error("Could not get a secure upload link from the server.");
+
       const { url, fields } = await presignedUrlResponse.json();
 
       setUploadStatus("Uploading to S3...");
@@ -237,16 +242,11 @@ export default function DashboardPage() {
       toast.success("Your new podcast is being created!");
     } catch (error: unknown) {
       let message = "Upload process failed due to an unexpected error.";
-
       if (error instanceof Error) {
         message = error.message;
       } else if (typeof error === "string") {
         message = error;
-      } else if (
-        typeof error === "object" &&
-        error !== null &&
-        "message" in error
-      ) {
+      } else if (typeof error === "object" && error !== null && "message" in error) {
         message = String((error as { message?: unknown }).message);
       }
 
@@ -258,9 +258,7 @@ export default function DashboardPage() {
       setUploadStatus("");
       setSelectedFile(null);
       setFileSizeMB(0);
-      const fileInput = document.querySelector(
-        'input[type="file"]'
-      ) as HTMLInputElement;
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
       if (fileInput) fileInput.value = "";
     }
   };
@@ -349,8 +347,7 @@ export default function DashboardPage() {
                       <CardTitle>Podcast #{podcast.id}</CardTitle>
                       <ClientOnly>
                         <CardDescription>
-                          Created on:{" "}
-                          {new Date(podcast.created_at).toLocaleString()}
+                          Created on: {new Date(podcast.created_at).toLocaleString()}
                         </CardDescription>
                       </ClientOnly>
                     </CardHeader>
@@ -364,9 +361,7 @@ export default function DashboardPage() {
                             </span>
                           </p>
                           <div className="mt-4 flex flex-wrap items-center gap-2">
-                            <Button
-                              onClick={() => setCurrentlyPlaying(podcast)}
-                            >
+                            <Button onClick={() => setCurrentlyPlaying(podcast)}>
                               Listen Now
                             </Button>
                             <Button asChild variant="outline">
@@ -388,7 +383,9 @@ export default function DashboardPage() {
                 ))
               ) : (
                 <p className="text-center text-gray-500">
-                  You haven&apos;t created any podcasts yet.
+                  {isApiAvailable
+                    ? "You have not created any podcasts yet."
+                    : "Podcast features are disabled in demo mode."}
                 </p>
               )}
             </div>
