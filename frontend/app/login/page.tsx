@@ -104,7 +104,6 @@ export default function LoginPage() {
                 >
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                     {" "}
-                    /* Google Icon SVG */{" "}
                   </svg>
                   Sign In with Google
                 </Button>
