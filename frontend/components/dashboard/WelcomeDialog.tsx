@@ -42,7 +42,7 @@ export default function WelcomeDialog({ isOpen, onClose }: WelcomeDialogProps) {
             Welcome to Podcast Pro!
           </AlertDialogTitle>
           <AlertDialogDescription className="text-center pt-2">
-            You're one of our first users, and we're thrilled to have you. Here are a few quick tips for the current version:
+            You&apos;re one of our first users, and we&apos;re thrilled to have you. Here are a few quick tips for the current version:
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="space-y-4 py-4">
@@ -55,7 +55,7 @@ export default function WelcomeDialog({ isOpen, onClose }: WelcomeDialogProps) {
         </div>
         <AlertDialogFooter>
           <AlertDialogAction className="w-full" onClick={onClose}>
-            Got it, let's create!
+            Got it, let&apos;s create!
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

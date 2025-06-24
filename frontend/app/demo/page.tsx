@@ -51,7 +51,7 @@ Today, Hampi is a UNESCO World Heritage Site, a sprawling open-air museum of rui
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold tracking-tight mb-4">Experience the Result</h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Here's an example of how your content gets transformed into a professional podcast. Listen to the audio
+              Here&apos;s an example of how your content gets transformed into a professional podcast. Listen to the audio
               and read the generated script below.
             </p>
           </div>

@@ -5,12 +5,12 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 
@@ -35,10 +35,24 @@ export default function LoginPage() {
         password: formData.password,
       });
       if (error) throw error;
-      router.push('/dashboard');
-    } catch (error: any) {
+      router.push("/dashboard");
+    } catch (error: unknown) {
+      let message = "Login failed due to an unexpected error.";
+
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === "string") {
+        message = error;
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        message = String((error as any).message);
+      }
+
       toast.error("Login Failed", {
-        description: error.message,
+        description: message,
       });
     } finally {
       setIsLoading(false);
@@ -48,7 +62,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
@@ -72,7 +86,9 @@ export default function LoginPage() {
         <div className="w-full max-w-md space-y-6">
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold tracking-tight">Welcome Back</h1>
-            <p className="text-muted-foreground">Sign in to continue transforming your content into podcasts</p>
+            <p className="text-muted-foreground">
+              Sign in to continue transforming your content into podcasts
+            </p>
           </div>
 
           <Card className="shadow-lg">
@@ -81,15 +97,28 @@ export default function LoginPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
-                <Button variant="outline" onClick={handleGoogleLogin} disabled={isLoading}>
-                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24"> /* Google Icon SVG */ </svg>
+                <Button
+                  variant="outline"
+                  onClick={handleGoogleLogin}
+                  disabled={isLoading}
+                >
+                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                    {" "}
+                    /* Google Icon SVG */{" "}
+                  </svg>
                   Sign In with Google
                 </Button>
               </div>
 
               <div className="relative">
-                <div className="absolute inset-0 flex items-center"><Separator className="w-full" /></div>
-                <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or sign in with email</span></div>
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or sign in with email
+                  </span>
+                </div>
               </div>
 
               <form onSubmit={handleEmailLogin} className="space-y-4">
@@ -97,7 +126,18 @@ export default function LoginPage() {
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="email" type="email" placeholder="john@example.com" className="pl-10" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} required disabled={isLoading} />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="john@example.com"
+                      className="pl-10"
+                      value={formData.email}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
+                      required
+                      disabled={isLoading}
+                    />
                   </div>
                 </div>
 
@@ -109,21 +149,54 @@ export default function LoginPage() {
                   </div>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="password" type={showPassword ? "text" : "password"} placeholder="Enter your password" className="pl-10 pr-10" value={formData.password} onChange={(e) => handleInputChange("password", e.target.value)} required disabled={isLoading} />
-                    <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      className="pl-10 pr-10"
+                      value={formData.password}
+                      onChange={(e) =>
+                        handleInputChange("password", e.target.value)
+                      }
+                      required
+                      disabled={isLoading}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing In...</>) : ("Sign In")}
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing In...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
                 </Button>
               </form>
 
               <p className="text-center text-sm text-muted-foreground">
-                Don't have an account?{" "}
-                <Link href="/signup" className="text-primary hover:underline font-medium">Sign up for free</Link>
+                Don&apos;t have an account?{" "}
+                <Link
+                  href="/signup"
+                  className="text-primary hover:underline font-medium"
+                >
+                  Sign up for free
+                </Link>
               </p>
             </CardContent>
           </Card>

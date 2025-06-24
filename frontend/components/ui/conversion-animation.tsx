@@ -8,8 +8,6 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import {
   FileText,
-  Video,
-  Globe,
   Zap,
   Brain,
   AudioWaveformIcon as Waveform,

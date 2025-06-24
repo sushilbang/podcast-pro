@@ -19,8 +19,12 @@ export default function Header() {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       router.push('/');
-    } catch (error: any) {
-      alert(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert('An unexpected error occurred.');
+      }
       setIsLoggingOut(false);
     }
   };

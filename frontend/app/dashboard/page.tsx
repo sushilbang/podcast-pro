@@ -59,7 +59,7 @@ export default function DashboardPage() {
   }, [router]);
 
   useEffect(() => {
-    const hasSeenWelcome = localStorage.getItem('hasSeenWelcomeMessage');
+    const hasSeenWelcome = localStorage.getItem("hasSeenWelcomeMessage");
     if (!hasSeenWelcome) {
       setShowWelcomeDialog(true);
     }
@@ -82,7 +82,7 @@ export default function DashboardPage() {
           } else {
             toast.error("Could not fetch your existing podcasts.");
           }
-        } catch (error) {
+        } catch {
           toast.error("Failed to connect to the server.");
         } finally {
           setIsFetchingPodcasts(false);
@@ -119,7 +119,9 @@ export default function DashboardPage() {
               if (updatedPodcast.status === "complete") {
                 toast.success(`Podcast #${updatedPodcast.id} is ready!`);
               } else if (updatedPodcast.status === "failed") {
-                toast.error(`Podcast #${updatedPodcast.id} failed to process. Most likely the API limit was reached. Service will be back once the limit resets.`);
+                toast.error(
+                  `Podcast #${updatedPodcast.id} failed to process. Most likely the API limit was reached. Service will be back once the limit resets.`
+                );
               }
             }
           }
@@ -154,7 +156,7 @@ export default function DashboardPage() {
   };
 
   const handleWelcomeDialogClose = () => {
-    localStorage.setItem('hasSeenWelcomeMessage', 'true');
+    localStorage.setItem("hasSeenWelcomeMessage", "true");
     setShowWelcomeDialog(false);
   };
 
@@ -219,21 +221,38 @@ export default function DashboardPage() {
             description: errorData.detail,
           });
         } else if (createPodcastResponse.status === 429) {
-            toast.error("Limit Reached", {
-              description: errorData.detail,
-            });
+          toast.error("Limit Reached", {
+            description: errorData.detail,
+          });
         } else {
-          // Handle all other errors
-          throw new Error(errorData.detail || "Server failed to start the podcast job.");
+          throw new Error(
+            errorData.detail || "Server failed to start the podcast job."
+          );
         }
-        return; 
+        return;
       }
 
       const newPodcast: Podcast = await createPodcastResponse.json();
       setPodcasts((prev) => [newPodcast, ...prev]);
       toast.success("Your new podcast is being created!");
-    } catch (error: any) {
-      toast.error("Upload Process Failed", { description: error.message });
+    } catch (error: unknown) {
+      let message = "Upload process failed due to an unexpected error.";
+
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === "string") {
+        message = error;
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        message = String((error as any).message);
+      }
+
+      toast.error("Upload Process Failed", {
+        description: message,
+      });
     } finally {
       setIsUploading(false);
       setUploadStatus("");
@@ -319,7 +338,7 @@ export default function DashboardPage() {
               {isFetchingPodcasts ? (
                 <div className="flex flex-col items-center justify-center py-10">
                   <div className="flex items-center justify-center space-x-2 py-4">
-                      <span className="loading loading-dots loading-xl"></span>
+                    <span className="loading loading-dots loading-xl"></span>
                   </div>
                   <p>Loading your podcasts...</p>
                 </div>
@@ -369,7 +388,7 @@ export default function DashboardPage() {
                 ))
               ) : (
                 <p className="text-center text-gray-500">
-                  You haven't created any podcasts yet.
+                  You haven&apos;t created any podcasts yet.
                 </p>
               )}
             </div>

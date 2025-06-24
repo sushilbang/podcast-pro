@@ -5,10 +5,10 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Eye, EyeOff, Mail, Lock, User, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { toast } from "sonner";
@@ -42,14 +42,28 @@ export default function SignupPage() {
       
       // Since you disabled email confirmation, we can just tell them to log in.
       // If you re-enable it, change this message back.
-      toast.success("Account Created!", {
-        description: "You can now log in with your new account.",
-      });
-      router.push('/login');
+      // toast.success("Account Created!", {
+      //   description: "You can now log in with your new account.",
+      // });
+      // router.push('/login');
       
-    } catch (error: any) {
-            toast.error("Signup Failed", {
-        description: error.message,
+      toast.success("Verification Email Sent!", {
+        description: "Please check your email to verify your account before logging in.",
+      });
+      
+    } catch (error: unknown) {
+      let message = "Signup failed due to an unknown error.";
+
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === "string") {
+        message = error;
+      } else if (typeof error === "object" && error !== null && "message" in error) {
+        message = String((error as any).message);
+      }
+
+      toast.error("Signup Failed", {
+        description: message,
       });
     } finally {
       setIsLoading(false);

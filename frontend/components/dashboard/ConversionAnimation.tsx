@@ -3,14 +3,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+// import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import {
-  Upload,
   Brain,
   Zap,
   AudioWaveformIcon as Waveform,
-  CheckCircle,
   XCircle,
 } from "lucide-react";
 
