@@ -46,7 +46,7 @@ export default function LandingPage() {
       </Link>
       <Link
         className="text-sm font-medium hover:text-primary transition-colors"
-        href="#demo"
+        href="/demo"
       >
         Demo
       </Link>
@@ -91,7 +91,7 @@ export default function LandingPage() {
             </Link>
           </Button>
           <Button variant="outline" size="lg" className="text-lg px-6" asChild>
-            <Link href="#demo">Watch Demo</Link>
+            <Link href="/demo">Watch Demo</Link>
           </Button>
         </div>
         <div className="text-sm text-muted-foreground flex flex-wrap justify-center lg:justify-start gap-3">
