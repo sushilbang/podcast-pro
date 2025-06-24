@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import ClientOnly from "@/components/ui/client-only";
-import Header from "@/components/layout/Header";
+import Header from "@/components/layout/header-block";
 import AudioPlayer from "@/components/ui/AudioPlayer";
 import ConversionAnimation from "@/components/dashboard/ConversionAnimation";
 import WelcomeDialog from "@/components/dashboard/WelcomeDialog";
