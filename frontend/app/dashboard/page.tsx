@@ -247,7 +247,7 @@ export default function DashboardPage() {
         error !== null &&
         "message" in error
       ) {
-        message = String((error as any).message);
+        message = String((error as { message?: unknown }).message);
       }
 
       toast.error("Upload Process Failed", {

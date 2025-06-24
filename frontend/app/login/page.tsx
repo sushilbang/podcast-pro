@@ -48,7 +48,7 @@ export default function LoginPage() {
         error !== null &&
         "message" in error
       ) {
-        message = String((error as any).message);
+        message = String((error as { message?: unknown }).message);
       }
 
       toast.error("Login Failed", {

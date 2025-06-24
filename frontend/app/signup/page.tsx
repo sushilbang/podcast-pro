@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 
@@ -19,7 +19,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  // const router = useRouter();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -46,7 +46,7 @@ export default function SignupPage() {
       //   description: "You can now log in with your new account.",
       // });
       // router.push('/login');
-      
+
       toast.success("Verification Email Sent!", {
         description: "Please check your email to verify your account before logging in.",
       });
@@ -59,7 +59,7 @@ export default function SignupPage() {
       } else if (typeof error === "string") {
         message = error;
       } else if (typeof error === "object" && error !== null && "message" in error) {
-        message = String((error as any).message);
+        message = String((error as { message?: unknown }).message);
       }
 
       toast.error("Signup Failed", {
@@ -107,7 +107,7 @@ export default function SignupPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
                 <Button variant="outline" onClick={handleGoogleLogin} disabled={isLoading}>
-                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24"> /* Google Icon SVG */ </svg>
+                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24"></svg>
                   Sign Up with Google
                 </Button>
               </div>
