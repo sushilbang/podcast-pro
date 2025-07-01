@@ -22,7 +22,7 @@ import WelcomeDialog from "@/components/dashboard/WelcomeDialog";
 import { toast } from "sonner";
 import { Loader2, Download } from "lucide-react";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
 type Podcast = {
   id: number;
