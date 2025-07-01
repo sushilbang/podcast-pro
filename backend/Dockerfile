@@ -6,6 +6,11 @@ WORKDIR /code
 # Copy the requirements file from the 'backend' subfolder first
 COPY backend/requirements.txt /code/requirements.txt
 
+# Install ffmpeg (for ffprobe)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install the dependencies
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
