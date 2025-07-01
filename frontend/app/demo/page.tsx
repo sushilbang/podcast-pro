@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Headphones, ArrowLeft } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 
@@ -33,8 +33,7 @@ Today, Hampi is a UNESCO World Heritage Site, a sprawling open-air museum of rui
       {/* Header */}
       <header className="px-4 lg:px-6 h-16 flex items-center border-b bg-background/80 backdrop-blur-sm">
         <Link className="flex items-center justify-center" href="/">
-          <Headphones className="h-8 w-8 text-primary" />
-          <span className="ml-2 text-2xl font-bold">Podcast Pro</span>
+          <span className="ml-2 text-2xl font-bold">Pod🎧</span>
         </Link>
         <div className="ml-auto">
           <Button variant="ghost" size="sm" asChild>
