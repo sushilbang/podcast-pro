@@ -1,3 +1,5 @@
+// frontend/app/dashboard/DashboardClient.tsx
+
 "use client"
 
 import type React from "react"
@@ -163,56 +165,41 @@ export default function DashboardClient({ initialPodcasts }: { initialPodcasts: 
 
   // Polling effect for podcast status updates
   useEffect(() => {
-    const processingPodcasts = podcasts.filter(
-      (p) => p.status === "pending" || p.status === "processing"
-    );
-    if (processingPodcasts.length === 0) {
-      return;
-    }
+    if (!user) return
 
-    const interval = setInterval(async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+    const interval = setInterval(() => {
+      const processing = podcasts.filter((p) => p.status === "pending" || p.status === "processing")
+      if (!processing.length) return
 
-      let hasChanges = false;
-      
-      const newPodcastsState = [...podcasts];
+      processing.forEach(async (podcast) => {
+        try {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession()
+          if (!session) return
 
-      await Promise.all(
-        processingPodcasts.map(async (podcast) => {
-          try {
-            const res = await fetch(`${API_URL}/podcasts/${podcast.id}`, {
-              headers: { Authorization: `Bearer ${session.access_token}` },
-            });
+          const res = await fetch(`${API_URL}/podcasts/${podcast.id}`, {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          })
 
-            if (res.ok) {
-              const updatedPodcast: Podcast = await res.json();
-              
-              const podcastIndex = newPodcastsState.findIndex(p => p.id === updatedPodcast.id);
-
-              if (podcastIndex !== -1 && newPodcastsState[podcastIndex].status !== updatedPodcast.status) {
-                newPodcastsState[podcastIndex] = updatedPodcast;
-                hasChanges = true;
-
-                if (updatedPodcast.status === "complete") {
-                    toast.success(`Podcast #${updatedPodcast.id} is ready!`);
-                } else if (updatedPodcast.status === "failed") {
-                    toast.error(`Podcast #${updatedPodcast.id} failed to process.`);
-                }
-              }
+          if (res.ok) {
+            const updated = await res.json()
+            if (updated.status === "complete") {
+              toast.success(`Podcast #${updated.id} is ready!`)
+            } else if (updated.status === "failed") {
+              toast.error(`Podcast #${updated.id} failed to generate. Please try again.`)
+            } else {
+              toast.info(`Podcast #${updated.id} is in progress...`)
             }
-          } catch (err) {
-            console.error(`Polling error for podcast #${podcast.id}:`, err);
           }
-        })
-      );
-      if (hasChanges) {
-        setPodcasts(newPodcastsState);
-      }
-    }, 5000);
+        } catch (err) {
+          console.error("Client - Polling error:", err)
+        }
+      })
+    }, 5000)
 
-    return () => clearInterval(interval);
-  }, [podcasts, supabase.auth]);
+    return () => clearInterval(interval)
+  }, [podcasts, user, supabase])
 
   // Handle file selection
   const handleFileSelect = (file?: File) => {
