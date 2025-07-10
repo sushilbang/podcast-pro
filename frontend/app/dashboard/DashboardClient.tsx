@@ -182,11 +182,12 @@ export default function DashboardClient({ initialPodcasts }: { initialPodcasts: 
 
           if (res.ok) {
             const updated = await res.json()
-            if (updated.status !== podcast.status) {
-              setPodcasts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))
-              toast[updated.status === "complete" ? "success" : "error"](
-                `Podcast #${updated.id} ${updated.status === "complete" ? "is ready" : "failed to process"}`,
-              )
+            if (updated.status === "complete") {
+              toast.success(`Podcast #${updated.id} is ready!`)
+            } else if (updated.status === "failed") {
+              toast.error(`Podcast #${updated.id} failed to generate. Please try again.`)
+            } else {
+              toast.info(`Podcast #${updated.id} is in progress...`)
             }
           }
         } catch (err) {
