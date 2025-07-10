@@ -1,33 +1,47 @@
-// frontend/components/layout/Header.tsx
+"use client"
 
-"use client";
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
+import Link from "next/link"
+import { createClient } from "@/utils/supabase/client"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 export default function Header() {
-  const router = useRouter();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const router = useRouter()
+  const supabase = createClient()
 
   const handleLogout = async () => {
-    setIsLoggingOut(true);
+    setIsLoggingOut(true)
+
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      router.push('/');
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        alert(error.message);
-      } else {
-        alert('An unexpected error occurred.');
+      console.log("Starting logout process...")
+
+      const { error } = await supabase.auth.signOut()
+
+      if (error) {
+        console.error("Logout error:", error)
+        toast.error("Failed to logout. Please try again.")
+        return
       }
-      setIsLoggingOut(false);
+
+      console.log("Logout successful, redirecting...")
+      toast.success("Logged out successfully")
+
+      // Clear any local storage if needed
+      localStorage.removeItem("hasSeenWelcomeMessage")
+
+      // Redirect to login page
+      router.replace("/login")
+    } catch (error) {
+      console.error("Unexpected logout error:", error)
+      toast.error("An unexpected error occurred during logout")
+    } finally {
+      setIsLoggingOut(false)
     }
-  };
+  }
 
   return (
     <header className="w-full max-w-5xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
@@ -35,7 +49,7 @@ export default function Header() {
         <Link href="/dashboard" className="text-2xl font-bold">
           Pod🎧
         </Link>
-        
+
         <Button onClick={handleLogout} variant="outline" disabled={isLoggingOut}>
           {isLoggingOut ? (
             <>
@@ -48,5 +62,5 @@ export default function Header() {
         </Button>
       </div>
     </header>
-  );
+  )
 }

@@ -53,11 +53,11 @@ export default function LandingPage() {
     </nav>
 
     <div className="flex items-center gap-2 ml-auto md:ml-0">
-      <Button variant="ghost" size="sm" asChild>
+      {/* <Button variant="ghost" size="sm" asChild>
         <Link href="/login">Sign In</Link>
-      </Button>
+      </Button> */}
       <Button size="sm" asChild>
-        <Link href="/signup">Get Started</Link>
+        <Link href="/login">Get Started</Link>
       </Button>
     </div>
   </div>
@@ -85,7 +85,7 @@ export default function LandingPage() {
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
           <Button size="lg" className="text-lg px-6" asChild>
-            <Link href="/signup">
+            <Link href="/login">
               <Play className="mr-2 h-5 w-5" />
               Start Creating Free
             </Link>
