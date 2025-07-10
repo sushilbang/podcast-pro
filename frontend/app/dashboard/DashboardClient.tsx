@@ -163,41 +163,56 @@ export default function DashboardClient({ initialPodcasts }: { initialPodcasts: 
 
   // Polling effect for podcast status updates
   useEffect(() => {
-    if (!user) return
+    const processingPodcasts = podcasts.filter(
+      (p) => p.status === "pending" || p.status === "processing"
+    );
+    if (processingPodcasts.length === 0) {
+      return;
+    }
 
-    const interval = setInterval(() => {
-      const processing = podcasts.filter((p) => p.status === "pending" || p.status === "processing")
-      if (!processing.length) return
+    const interval = setInterval(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-      processing.forEach(async (podcast) => {
-        try {
-          const {
-            data: { session },
-          } = await supabase.auth.getSession()
-          if (!session) return
+      let hasChanges = false;
+      
+      const newPodcastsState = [...podcasts];
 
-          const res = await fetch(`${API_URL}/podcasts/${podcast.id}`, {
-            headers: { Authorization: `Bearer ${session.access_token}` },
-          })
+      await Promise.all(
+        processingPodcasts.map(async (podcast) => {
+          try {
+            const res = await fetch(`${API_URL}/podcasts/${podcast.id}`, {
+              headers: { Authorization: `Bearer ${session.access_token}` },
+            });
 
-          if (res.ok) {
-            const updated = await res.json()
-            if (updated.status === "complete") {
-              toast.success(`Podcast #${updated.id} is ready!`)
-            } else if (updated.status === "failed") {
-              toast.error(`Podcast #${updated.id} failed to generate. Please try again.`)
-            } else {
-              toast.info(`Podcast #${updated.id} is in progress...`)
+            if (res.ok) {
+              const updatedPodcast: Podcast = await res.json();
+              
+              const podcastIndex = newPodcastsState.findIndex(p => p.id === updatedPodcast.id);
+
+              if (podcastIndex !== -1 && newPodcastsState[podcastIndex].status !== updatedPodcast.status) {
+                newPodcastsState[podcastIndex] = updatedPodcast;
+                hasChanges = true;
+
+                if (updatedPodcast.status === "complete") {
+                    toast.success(`Podcast #${updatedPodcast.id} is ready!`);
+                } else if (updatedPodcast.status === "failed") {
+                    toast.error(`Podcast #${updatedPodcast.id} failed to process.`);
+                }
+              }
             }
+          } catch (err) {
+            console.error(`Polling error for podcast #${podcast.id}:`, err);
           }
-        } catch (err) {
-          console.error("Client - Polling error:", err)
-        }
-      })
-    }, 5000)
+        })
+      );
+      if (hasChanges) {
+        setPodcasts(newPodcastsState);
+      }
+    }, 5000);
 
-    return () => clearInterval(interval)
-  }, [podcasts, user, supabase])
+    return () => clearInterval(interval);
+  }, [podcasts, supabase.auth]);
 
   // Handle file selection
   const handleFileSelect = (file?: File) => {
