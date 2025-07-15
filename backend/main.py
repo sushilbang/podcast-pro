@@ -161,3 +161,13 @@ def read_user_podcasts(
     
     # Fetch and return all podcasts owned by this user
     return crud.get_podcasts_by_user(db=db, user_id=db_user.id)
+
+# health check database
+@app.get("/health")
+async def health_check(db: Session = Depends(get_db)):
+    try:
+        # Test DB connection
+        db.execute("SELECT 1")
+        return {"status": "healthy", "services": ["database"]}
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Database unavailable: {e}")
