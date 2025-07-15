@@ -2,9 +2,7 @@ import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
+  let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,19 +14,19 @@ export async function middleware(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options))
+          supabaseResponse = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
         },
       },
-    },
+    }
   )
 
   // Define public routes that don't require authentication
-  const publicRoutes = ["/", "/login", "/signup", "/demo", "/auth"]
+  const publicRoutes = ["/", "/login", "/demo", "/auth"]
 
-  // Skip middleware for auth callback, static files, and API routes
+  // Skip middleware for static assets and auth callback
   if (
     request.nextUrl.pathname.startsWith("/auth/callback") ||
     request.nextUrl.pathname.startsWith("/_next") ||
@@ -38,31 +36,32 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  // Check if current path is public
   const isPublicRoute = publicRoutes.some(
-    (route) => request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(`${route}/`),
+    (route) =>
+      request.nextUrl.pathname === route ||
+      request.nextUrl.pathname.startsWith(`${route}/`)
   )
 
-  // If it's a public route, allow access without authentication
-  if (isPublicRoute) {
-    return supabaseResponse
-  }
-
-  // For protected routes (like dashboard), check authentication
   const {
     data: { user },
     error,
   } = await supabase.auth.getUser()
 
   console.log(
-    `Middleware - Path: ${request.nextUrl.pathname}, User: ${user?.email || "none"}, Error: ${error?.message || "none"}`,
+    `Middleware: ${request.nextUrl.pathname} | Authenticated: ${!!user} | Public: ${isPublicRoute}`
   )
 
-  // Redirect to login if no user for protected routes
-  if (!user) {
-    console.log(`Middleware - Redirecting to login from ${request.nextUrl.pathname}`)
+  if (!user && !isPublicRoute) {
+    console.log(`🔁 Redirecting to /login`)
     const url = request.nextUrl.clone()
     url.pathname = "/login"
+    return NextResponse.redirect(url)
+  }
+
+  if (user && isPublicRoute) {
+    console.log(`🔁 Redirecting to /dashboard`)
+    const url = request.nextUrl.clone()
+    url.pathname = "/dashboard"
     return NextResponse.redirect(url)
   }
 

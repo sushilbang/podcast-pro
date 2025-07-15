@@ -185,7 +185,7 @@ export default function DashboardClient({ initialPodcasts }: { initialPodcasts: 
           if (res.ok) {
             const updated = await res.json()
             if (updated.status === "complete") {
-              toast.success(`Podcast #${updated.id} is ready!`)
+              toast.success(`Podcast #${updated.id} is ready! Reload page.`)
             } else if (updated.status === "failed") {
               toast.error(`Podcast #${updated.id} failed to generate. Please try again.`)
             } else {
