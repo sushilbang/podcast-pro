@@ -31,26 +31,36 @@ export default function LandingPage() {
       <span className="text-2xl font-bold">Pod🎧</span>
     </Link>
 
-    <nav className="hidden md:flex gap-6">
-      <Link
-        className="text-sm font-medium hover:text-primary transition-colors"
-        href="#features"
-      >
-        Features
-      </Link>
-      <Link
-        className="text-sm font-medium hover:text-primary transition-colors"
-        href="#how-it-works"
-      >
-        How It Works
-      </Link>
-      <Link
-        className="text-sm font-medium hover:text-primary transition-colors"
-        href="/demo"
-      >
-        Demo
-      </Link>
-    </nav>
+    <nav className="hidden md:flex gap-6 items-center">
+  <Link
+    className="text-sm font-medium hover:text-primary transition-colors"
+    href="#features"
+  >
+    Features
+  </Link>
+  <Link
+    className="text-sm font-medium hover:text-primary transition-colors"
+    href="#how-it-works"
+  >
+    How It Works
+  </Link>
+  <Link
+    className="text-sm font-medium hover:text-primary transition-colors"
+    href="/demo"
+  >
+    Demo
+  </Link>
+  <Link
+    className="text-sm font-medium flex items-center gap-1 hover:text-yellow-500 transition-colors"
+    href="https://github.com/sushilbang/podcast-pro"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <Star className="h-4 w-4" />
+    Star on GitHub
+  </Link>
+</nav>
+
 
     <div className="flex items-center gap-2 ml-auto md:ml-0">
       {/* <Button variant="ghost" size="sm" asChild>
