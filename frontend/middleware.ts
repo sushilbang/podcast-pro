@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
   )
 
   // Define public routes that don't require authentication
-  const publicRoutes = ["/", "/login", "/demo", "/auth"]
+  const publicRoutes = ["/", "/login", "/demo", "/auth", "/error"]
 
   // Skip middleware for static assets and auth callback
   if (

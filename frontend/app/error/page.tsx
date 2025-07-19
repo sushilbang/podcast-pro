@@ -11,8 +11,8 @@ export default function ErrorPage() {
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
             <AlertCircle className="h-6 w-6 text-red-600" />
           </div>
-          <CardTitle className="mt-4 text-xl">Authentication Error</CardTitle>
-          <CardDescription>There was a problem with your authentication. Please try again.</CardDescription>
+          <CardTitle className="mt-4 text-xl">An Error Occurred</CardTitle>
+          <CardDescription>There was a problem with your request. Please try again.</CardDescription>
         </CardHeader>
         <CardContent>
           <Button asChild className="w-full">

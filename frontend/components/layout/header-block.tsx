@@ -2,11 +2,18 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
+import { User, LogOut } from "lucide-react"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function Header() {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -14,6 +21,8 @@ export default function Header() {
   const supabase = createClient()
 
   const handleLogout = async () => {
+    if (isLoggingOut) return
+    
     setIsLoggingOut(true)
 
     try {
@@ -30,11 +39,7 @@ export default function Header() {
       console.log("Logout successful, redirecting...")
       toast.success("Logged out successfully")
 
-      // Clear any local storage if needed
-      localStorage.removeItem("hasSeenWelcomeMessage")
-
-      // Redirect to login page
-      router.replace("/login")
+      router.replace("/")
     } catch (error) {
       console.error("Unexpected logout error:", error)
       toast.error("An unexpected error occurred during logout")
@@ -50,16 +55,28 @@ export default function Header() {
           Pod🎧
         </Link>
 
-        <Button onClick={handleLogout} variant="outline" disabled={isLoggingOut}>
-          {isLoggingOut ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Logging out...
-            </>
-          ) : (
-            "Logout"
-          )}
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src="" alt="User avatar" />
+                <AvatarFallback>
+                  <User className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuItem 
+              onClick={handleLogout} 
+              disabled={isLoggingOut}
+              className="cursor-pointer"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              {isLoggingOut ? "Logging out..." : "Logout"}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   )
