@@ -97,7 +97,7 @@ def create_upload_url(request: SignedURLRequest): # It now expects a JSON body
     except ClientError as e:
         print(f"Error generating pre-signed URL: {e}")
         raise HTTPException(status_code=400, detail="Could not generate upload URL")
-
+# on startup, initialize the FastAPILimiter with Redis
 @app.on_event("startup")
 async def startup():
     # Use the Redis URL from your environment variables
@@ -109,7 +109,7 @@ async def startup():
         redis_connection = redis.from_url(redis_url)
     
     await FastAPILimiter.init(redis_connection)
-
+# create a podcast
 @app.post("/podcasts/", response_model=schemas.Podcast, status_code=202, dependencies=[Depends(RateLimiter(times=10, minutes=5))])
 def create_podcast(
     podcast: schemas.PodcastCreate,

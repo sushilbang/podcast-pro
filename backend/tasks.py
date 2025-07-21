@@ -1,5 +1,6 @@
 import os
 import time
+from urllib import response
 import fitz
 import boto3
 import tempfile
@@ -9,11 +10,33 @@ from pydub import AudioSegment
 # from openai import OpenAI
 import google.generativeai as genai
 from elevenlabs.client import ElevenLabs
-
+import requests
 from . import celery_app
 from . import models, crud
 from .database import SessionLocal
 
+# LemonFox API setup
+LEMONFOX_API_KEY = os.getenv("LEMONFOX_API_KEY")
+LEMONFOX_API_URL = "https://api.lemonfox.ai/v1/audio/speech"
+
+def generate_lemonfox_audio(voice: str, text: str) -> AudioSegment:
+    headers = {
+        "Authorization": f"Bearer {LEMONFOX_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "input": text,
+        "voice": voice,
+        "response_format": "mp3"
+    }
+
+    response = requests.post(LEMONFOX_API_URL, headers=headers, json=payload)
+
+    if response.status_code != 200:
+        raise Exception(f"Lemonfox API error: {response.status_code} - {response.text}")
+
+    audio_buffer = io.BytesIO(response.content)
+    return AudioSegment.from_mp3(audio_buffer)
 
 # Initialize clients
 # openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -80,28 +103,47 @@ def create_podcast_task(podcast_id: int):
         print(f"[{podcast.id}] Text extracted successfully. Length: {len(source_text)} chars.")
         print(f"[{podcast.id}] Generating script with Gemini...")
 
-        prompt = """You are an expert podcast scriptwriter creating a dynamic, conversational script for two hosts, Dorothy and Will.
+        summary_prompt = """
+                Analyze the following text and create a detailed, structured summary. Identify and extract:
+                1. The core thesis or main argument.
+                2. The top 3-5 key topics or supporting points.
+                3. Any important data, statistics, or case studies mentioned.
+                4. The primary conclusion or takeaway.
 
-        CRITICAL INSTRUCTIONS:
+                Do not make up information. Base your summary strictly on the provided text.
 
-        1. The final script must be a maximum of approximately 1000 characters long (including speaker labels, spaces, and punctuation). Adapt the level of detail from the source text to strictly meet this length requirement.
-        2. Format the entire script with clear speaker labels: Dorothy: and Will:. Each time a speaker changes, start a new line with their label.
-        3. ONLY output the speaker labels and their spoken words. Do NOT include any other text, stage directions, or descriptions like [intro music].
-        4. The conversation should flow naturally. Dorothy can introduce topics, and Will can provide commentary or ask questions, creating a dynamic dialogue.
-        5. Use punctuation deliberately to guide realistic pacing — for example, commas for short pauses, ellipses (...) for longer ones, and em dashes (—) for emphasis or hesitation. This will make the spoken audio more engaging and natural.
-        6. Ensure the final output is a clean, ready-to-parse script for audio synthesis.
-        7. Dorothy is female and Will is male.
+                ---
+                {source_text}
+                ---
+                """
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        summary_response = model.generate_content(summary_prompt)
+        detailed_summary = summary_response.text 
+        
 
-        Here is the source text to transform into this two-person dialogue:
+        prompt = """You are an expert podcast scriptwriter creating a dynamic, engaging script for two hosts: Dorothy (an insightful analyst) and Will (a curious commentator).
+
+        Source Material:
+        You will be given a detailed summary of a document. Your task is to transform this summary into a natural, two-person dialogue.
+
+        Critical Instructions:
+        1.  Narrative Flow: Do not just list the facts. Create a narrative. Dorothy should introduce the main topics and provide expert analysis based on the summary. Will should ask clarifying questions, offer relatable analogies, and react to the information, guiding the listener through the subject.
+        2.  Focus on Key Insights: Weave the core thesis, key topics, and important data from the summary into the conversation naturally. The dialogue must be centered on the provided subject matter.
+        3.  Engaging Dialogue: Use varied sentence lengths. Incorporate rhetorical questions. Use punctuation like em dashes (—) for emphasis and ellipses (...) to create natural pauses and a conversational rhythm.
+        4.  Speaker Roles:
+            *   Dorothy: Analytical, insightful, drives the main points forward.
+            *   Will: Inquisitive, represents the listener's perspective, makes the content more accessible.
+        5.  Format: Start each line with the speaker's label (e.g., "Dorothy:"). Do NOT include any other text like stage directions.
+        6.  Length: The final script should be approximately 1000 characters.
+
+        **Here is the detailed summary to transform:**
         ---
         {text_to_summarize}
         ---
         """
-        max_chars = 2005
-        truncated_text = source_text[:max_chars]
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        response = model.generate_content(prompt.format(text_to_summarize=truncated_text))
-        script = response.text
+        response = model.generate_content(prompt.format(text_to_summarize=detailed_summary))
+        raw_script = response.text
+        script = clean_script(raw_script)
 
         # script = """Dorothy: Welcome to our podcast! Today, we're diving into the fascinating world of AI and its impact on our lives.
         #             Will: Absolutely, Dorothy! AI is transforming everything from healthcare to entertainment."""
@@ -112,9 +154,14 @@ def create_podcast_task(podcast_id: int):
         print(f"[{podcast.id}] Script generated successfully.")
         print(f"[{podcast.id}] Script generated. Now creating two-voice audio.")
 
-        voice_map = {
+        voice_map_eleven = {
             "DOROTHY": "ThT5KcBeYPX3keUQqHPh",
             "WILL": "bIHbv24MWmeRgasZH58o"
+        }
+
+        voice_map_lemon = {
+            "DOROTHY": "sarah",
+            "WILL": "puck"
         }
 
         script_lines = script.strip().split('\n')
@@ -130,22 +177,24 @@ def create_podcast_task(podcast_id: int):
                 speaker, text_to_speak = match.groups()
                 speaker = speaker.upper()
 
-                if speaker in voice_map:
-                    voice_id_to_use = voice_map[speaker]
+                if speaker in voice_map_lemon:
+                    # voice_id_to_use = voice_map_lemon[speaker]
                     print(f"[{podcast.id}] Generating audio for {speaker}...")
 
-                    audio_iterator = elevenlabs_client.text_to_speech.convert(
-                        voice_id=voice_id_to_use,
-                        text=text_to_speak,
-                        model_id="eleven_multilingual_v2"
-                    )
+                    # audio_iterator = elevenlabs_client.text_to_speech.convert(
+                    #     voice_id=voice_id_to_use,
+                    #     text=text_to_speak,
+                    #     model_id="eleven_multilingual_v2"
+                    # )
 
-                    audio_buffer = io.BytesIO()
-                    for chunk in audio_iterator:
-                        audio_buffer.write(chunk)
-                    audio_buffer.seek(0)
+                    # audio_buffer = io.BytesIO()
+                    # for chunk in audio_iterator:
+                    #     audio_buffer.write(chunk)
+                    # audio_buffer.seek(0)
 
-                    segment = AudioSegment.from_mp3(audio_buffer)
+                    # segment = AudioSegment.from_mp3(audio_buffer)
+                    
+                    segment = generate_lemonfox_audio(voice_map_lemon[speaker], text_to_speak)
                     final_podcast += segment
                 else:
                     print(f"[{podcast.id}] Warning: Skipping line with unknown speaker: {speaker}")

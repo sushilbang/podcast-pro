@@ -20,11 +20,11 @@ import {
 import ClientOnly from "@/components/ui/client-only";
 import Header from "@/components/layout/header-block";
 import AudioPlayer from "@/components/ui/AudioPlayer";
-import ConversionAnimation from "@/components/dashboard/ConversionAnimation";
-import WelcomeDialog from "@/components/dashboard/WelcomeDialog";
+// import ConversionAnimation from "@/components/dashboard/ConversionAnimation";
 import { Loader2, Download } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import Image from "next/image";
+import { Text } from "@/components/ui/text";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 const MAX_SIZE_MB = 10;
@@ -55,7 +55,6 @@ export default function DashboardClient({
   const [isFetchingPodcasts, setIsFetchingPodcasts] = useState(true);
   const [dragOver, setDragOver] = useState(false);
   const [fileSizeMB, setFileSizeMB] = useState<number>(0);
-  const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(3);
   const totalItems = podcasts.length;
@@ -108,12 +107,6 @@ export default function DashboardClient({
       subscription.unsubscribe();
     };
   }, [supabase, router]);
-
-  useEffect(() => {
-    if (!user) return;
-    const hasSeenWelcome = localStorage.getItem("hasSeenWelcomeMessage");
-    if (!hasSeenWelcome) setShowWelcomeDialog(true);
-  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -369,7 +362,10 @@ export default function DashboardClient({
                           </div>
                         </>
                       ) : (
-                        <ConversionAnimation status={podcast.status} />
+                        // <ConversionAnimation status={podcast.status} /> <- annoying if takes more than a few seconds
+                        <Text variant="shine">
+                          Generating....
+                        </Text>
                       )}
                     </CardContent>
                   </Card>
@@ -397,14 +393,6 @@ export default function DashboardClient({
           onClose={() => setCurrentlyPlaying(null)}
         />
       )}
-
-      <WelcomeDialog
-        isOpen={showWelcomeDialog}
-        onClose={() => {
-          localStorage.setItem("hasSeenWelcomeMessage", "true");
-          setShowWelcomeDialog(false);
-        }}
-      />
     </div>
   );
 }

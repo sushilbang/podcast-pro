@@ -4,7 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { signInWithGoogle } from "@/app/login/actions"
-import { Loader2 } from "lucide-react"
+import { Loader } from "lucide-react"
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
@@ -45,11 +45,11 @@ export function LoginForm() {
           <Button
             onClick={handleGoogleLogin}
             variant="outline"
-            className="w-full"
+            className="w-full hover:cursor-pointer"
             disabled={isLoading}
           >
             {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader className="ml-2 h-4 w-4 animate-spin" />
             ) : (
               <svg
                 className="mr-2 h-4 w-4"
