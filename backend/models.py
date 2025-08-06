@@ -28,6 +28,17 @@ class Podcast(Base):
     original_file_url = Column(String, nullable=True)
     final_podcast_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-
+    title=Column(String, nullable=True)
+    requirements = Column(String, nullable=True)
+    speech_model = Column(String, nullable=True) 
+    output_type = Column(String, nullable=True)
+    duration = Column(Integer, default=0)
+    file_size = Column(String, nullable=True)
+    description = Column(String, nullable=True)
+    tags = Column(String, nullable=True)
+    plays = Column(Integer, default=0)
+    transcript = Column(String, nullable=True)
+    summary = Column(String, nullable=True)
+    chapters = Column(String, nullable=True)   # Storing as a JSON string
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", back_populates="podcasts")

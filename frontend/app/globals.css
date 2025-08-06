@@ -190,3 +190,31 @@
     @apply bg-background text-foreground;
   }
 }
+
+.font-roboto {
+  font-family: var(--font-roboto), ui-sans-serif, system-ui, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+.font-orbitron {
+  font-family: var(--font-orbitron), ui-sans-serif, system-ui, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+.font-quantico {
+  font-family: var(--font-quantico), ui-sans-serif, system-ui, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+.font-geist-mono {
+  font-family: var(--font-geist-mono), ui-sans-serif, system-ui, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+.font-geist-sans {
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+.font-poppins {
+  font-family: var(--font-poppins), ui-sans-serif, system-ui, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+.font-foldit {
+  font-family: var(--font-foldit), ui-sans-serif, system-ui, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}

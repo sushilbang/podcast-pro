@@ -2,13 +2,30 @@
 
 import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
+import { headers } from "next/headers"
+
+async function getBaseURL() {
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
+  }
+  
+  const headersList = await headers();
+  const host = headersList.get('host');
+  
+  if (host) {
+    return `https://${host}`;
+  }
+  return 'https://podcast-pro-gilt.vercel.app';
+}
 
 export async function signInWithGoogle() {
-  const supabase = await createClient()
+  const supabase = await createClient();
+  const baseURL = await getBaseURL();
+  console.log(`base url: ${baseURL}`)
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      redirectTo: `${baseURL}/auth/callback`,
     },
   })
 
