@@ -43,6 +43,7 @@ const roboto = Roboto({
 const quantico = Quantico({
   variable: "--font-quantico",
   weight: ['400'],
+  subsets: ["latin"],
   display: 'swap'
 });
 
