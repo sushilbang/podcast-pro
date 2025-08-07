@@ -35,8 +35,8 @@ export function LoginForm() {
       {/* Right form section */}
       <div className="md:w-1/2 w-full p-8 flex flex-col justify-center">
         <div className="space-y-2 text-center md:text-left mb-6">
-          <h1 className="text-2xl font-bold">Welcome to Pod</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-2xl font-orbitron">Welcome to Pod</h1>
+          <p className="text-sm text-muted-foreground font-geist-mono">
             Sign in using your Google account to continue
           </p>
         </div>
@@ -45,7 +45,7 @@ export function LoginForm() {
           <Button
             onClick={handleGoogleLogin}
             variant="outline"
-            className="w-full hover:cursor-pointer"
+            className="w-full hover:cursor-pointer font-orbitron"
             disabled={isLoading}
           >
             {isLoading ? (

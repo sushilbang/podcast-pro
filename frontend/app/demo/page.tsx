@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Headphones } from "lucide-react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 
@@ -33,10 +33,11 @@ Today, Hampi is a UNESCO World Heritage Site, a sprawling open-air museum of rui
       {/* Header */}
       <header className="px-4 lg:px-6 h-16 flex items-center border-b bg-background/80 backdrop-blur-sm">
         <Link className="flex items-center justify-center" href="/">
-          <span className="ml-2 text-2xl font-bold">Pod🎧</span>
+          <Headphones className="h-6 w-6" />
+          <span className="ml-2 text-2xl font-orbitron">Pod</span>
         </Link>
         <div className="ml-auto">
-          <Button variant="ghost" size="sm" asChild>
+          <Button variant="ghost" size="sm" className="font-orbitron" asChild>
             <Link href="/">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Home
@@ -48,8 +49,8 @@ Today, Hampi is a UNESCO World Heritage Site, a sprawling open-air museum of rui
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold tracking-tight mb-4">Experience the Result</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <h1 className="text-4xl font-orbitron tracking-tight mb-4">Experience the Result</h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-geist-mono">
               Here&apos;s an example of how your content gets transformed into a professional podcast. Listen to the audio
               and read the generated script below.
             </p>
@@ -64,16 +65,16 @@ Today, Hampi is a UNESCO World Heritage Site, a sprawling open-air museum of rui
 
           <div className="text-center mt-12">
             <div className="space-y-4">
-              <h3 className="text-2xl font-semibold">Ready to Create Your Own?</h3>
-              <p className="text-muted-foreground">
+              <h3 className="text-2xl font-orbitron">Ready to Create Your Own?</h3>
+              <p className="text-muted-foreground font-geist-mono">
                 Transform your content into engaging podcasts in just a few clicks.
               </p>
               <div className="flex gap-4 justify-center">
                 <Button size="lg" asChild>
-                  <Link href="/login">Get Started Free</Link>
+                  <Link href="/login" className="font-orbitron">Get Started Free</Link>
                 </Button>
                 <Button variant="outline" size="lg" asChild>
-                  <Link href="/">Learn More</Link>
+                  <Link href="/" className="font-orbitron">Learn More</Link>
                 </Button>
               </div>
             </div>
