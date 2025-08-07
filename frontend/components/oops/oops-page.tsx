@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { AlertTriangle, RefreshCw, Home, Mail } from 'lucide-react'
+import { AlertTriangle, Home} from 'lucide-react'
 import Link from "next/link"
 
 export function OopsPage() {
@@ -17,7 +17,7 @@ export function OopsPage() {
             Oops! Service Temporarily Unavailable
           </CardTitle>
           <CardDescription className="text-gray-600 mt-2 font-geist-mono">
-            We're currently performing maintenance on our podcast generation service. 
+            We&apos;re currently performing maintenance on our podcast generation service. 
             Please check back in a few minutes.
           </CardDescription>
         </CardHeader>
@@ -25,7 +25,7 @@ export function OopsPage() {
         <CardContent className="space-y-4">
           <div className="bg-gray-50 rounded-lg p-4 text-center">
             <p className="text-sm text-gray-700 mb-2 font-orbitron">
-              <strong>What's happening?</strong>
+              <strong>What&apos;s happening?</strong>
             </p>
             <p className="text-xs text-gray-600 font-geist-mono">
               Our AI-powered podcast generation is temporarily disabled while we make improvements to serve you better.
