@@ -75,7 +75,7 @@ export function UploadArea({ selectedFile, onFileSelect, isUploading }: UploadAr
         <div>
           <p className="font-medium mb-1">Drop your PDF here</p>
           <p className="text-sm text-gray-500">or click to browse files</p>
-          <p className="text-xs text-gray-400 mt-2">Maximum file size: 10MB</p>
+          <p className="text-xs text-gray-400 mt-2">Maximum file size: 1MB</p>
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Textarea } from "@/components/ui/textarea"
@@ -25,6 +25,12 @@ export function DashboardClient() {
   const supabase = createClient()
   const router = useRouter()
 
+  useEffect(() => {
+    if (speechModel === 'kokoro-tts') {
+      setOutputType('summary');
+    }
+  }, [speechModel]);
+
   const handleFileSelect = (file: File | null) => {
     // If a file is passed, validate it
     if (file) {
@@ -34,8 +40,8 @@ export function DashboardClient() {
         setSelectedFile(null);
         return;
       }
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error("File must be smaller than 10MB");
+      if (file.size > 1 * 1024 * 1024) {
+        toast.error("File must be smaller than 1MB");
         setSelectedFile(null);
         return;
       }
@@ -170,7 +176,7 @@ export function DashboardClient() {
               placeholder="Describe how you want your content processed. For example: 'Focus on the key findings and make it conversational' or 'Create a technical deep-dive for experts' or 'Summarize the main points in simple terms'"
               value={requirements}
               onChange={(e) => setRequirements(e.target.value)}
-              className="min-h-24 resize-none"
+              className="min-h-24 resize-none text-sm"
               disabled={isUploading}
             />
           </div>
@@ -188,6 +194,7 @@ export function DashboardClient() {
                 <SelectContent>
                   <SelectItem value="lemonfox">LemonFox</SelectItem>
                   <SelectItem value="elevenlabs">ElevenLabs</SelectItem>
+                  <SelectItem value="kokoro-tts">Kokoro</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -196,7 +203,7 @@ export function DashboardClient() {
               <Label className="text-sm font-medium">
                 Output Type <span className="text-red-500">*</span>
               </Label>
-              <Select value={outputType} onValueChange={setOutputType} disabled={isUploading}>
+              <Select value={outputType} onValueChange={setOutputType} disabled={isUploading || speechModel === 'kokoro-tts'}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose output type" />
                 </SelectTrigger>

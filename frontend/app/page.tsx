@@ -9,7 +9,6 @@ import { FileText, Headphones, Zap, Play, ArrowRight, Menu, X, CheckCircle, Shie
 import Link from "next/link"
 import { Video } from "@/components/ui/video";
 export default function Page() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
     return () => {
@@ -50,18 +49,6 @@ export default function Page() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex gap-6 items-center">
             <a
-              className="text-sm font-orbitron text-muted-foreground hover:text-foreground transition-colors duration-300 ease-in-out"
-              href="#features"
-            >
-              Features
-            </a>
-            <a
-              className="text-sm font-orbitron text-muted-foreground hover:text-foreground transition-colors duration-300 ease-in-out"
-              href="#how-it-works"
-            >
-              How It Works
-            </a>
-            <a
               className="text-sm font-orbitron text-muted-foreground hover:text-foreground flex items-center gap-1 duration-300 ease-in-out"
               href="https://github.com/sushilbang/podcast-pro"
               target="_blank"
@@ -79,41 +66,8 @@ export default function Page() {
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="lg:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden border-t bg-background">
-            <nav className="container mx-auto px-4 py-4 space-y-4">
-              <a
-                className="block text-sm font-medium hover:text-primary transition-colors"
-                href="#features"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Features
-              </a>
-              <a
-                className="block text-sm font-medium hover:text-primary transition-colors"
-                href="#how-it-works"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                How It Works
-              </a>
-              <Button size="sm" className="w-full">
-                <Link href="/login">Get Started</Link>
-              </Button>
-            </nav>
-          </div>
-        )}
       </header>
 
       <main className="flex-1">
@@ -175,7 +129,7 @@ export default function Page() {
                       </div>
                       <CardTitle className="text-lg">Your Content, Your Voice</CardTitle>
                       <CardDescription className="text-sm">
-                        Upload any document and get a personalized podcast in minutes
+                        Upload any document and get a personalized audio content in minutes
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -207,22 +161,10 @@ export default function Page() {
           </div>
         </section>
 
-        <section
-          id="how-it-works"
-          className="w-full py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-muted/30 to-background"
-        >
-          <div className="container max-w-screen-xl mx-auto px-4 sm:px-6">
-            <div className="flex flex-col items-start justify-center space-y-8 text-left">
-              <h1 className="text-3xl lg:text-5xl font-orbitron text-left w-full">How it works</h1>
-              <Video />
-            </div>
-          </div>
-        </section>
-
         {/* Features Section - Updated for better responsiveness */}
-        <section id="features" className="w-full py-12 sm:py-16 lg:py-24">
+        <section id="how-it-works" className="w-full py-12 sm:py-16 lg:py-24">
           <div className="container max-w-screen-xl mx-auto px-4 sm:px-6">
-            <h1 className="text-3xl lg:text-5xl font-orbitron text-left w-full py-8">Features</h1>
+            <h1 className="text-3xl lg:text-5xl font-orbitron text-left w-full py-8">How it works</h1>
             <div className="space-y-12">
               {features.map((feature, index) => (
                 <div 
