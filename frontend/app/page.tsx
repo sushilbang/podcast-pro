@@ -5,7 +5,7 @@ import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Headphones, Zap, Play, ArrowRight, CheckCircle, Shield, Github } from 'lucide-react'
+import { FileText, Headphones, Play, ArrowRight, CheckCircle, Shield, Github } from 'lucide-react'
 import Link from "next/link"
 export default function Page() {
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Page() {
     <div className="flex flex-col min-h-screen">
       {/* Header */}
       <header className="w-full border-b backdrop-blur-sm bg-background/80 sticky top-0 z-50">
-        <div className="container max-w-screen-xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4">
+        <div className="container max-w-screen-xl mx-auto flex items-center justify-center sm:justify-between px-4 sm:px-6 py-4">
           <div className="flex items-center gap-2">
             <div className="relative">
               <Headphones className="h-6 w-6 text-primary" />
@@ -118,44 +118,60 @@ export default function Page() {
               </div>
 
               {/* Demo Card Section */}
-              <div className="flex items-center justify-center order-1 lg:order-2">
-                <div className="relative w-full max-w-sm lg:max-w-md">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-3xl animate-pulse"></div>
-                  <Card className="relative z-10 shadow-2xl border-0 bg-gradient-to-br from-background to-background/80 backdrop-blur">
-                    <CardHeader className="text-center pb-4">
-                      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20">
-                        <Headphones className="h-8 w-8 text-primary" />
+              <div className="hidden lg:block order-2">
+                <div className="relative w-full max-w-md">
+                  <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-xl"></div>
+                  <Card className="relative z-10 border border-border/50 bg-background/95 backdrop-blur-sm">
+                    <CardHeader className="text-center pb-6">
+                      <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-lg border border-primary/20 bg-primary/5">
+                        <Headphones className="h-5 w-5 text-primary" />
                       </div>
-                      <CardTitle className="text-lg">Your Content, Your Voice</CardTitle>
-                      <CardDescription className="text-sm">
-                        Upload any document and get a personalized audio content in minutes
+                      <CardTitle className="text-lg font-orbitron tracking-wide">
+                        Content → Audio
+                      </CardTitle>
+                      <CardDescription className="text-sm font-geist-mono text-muted-foreground/80">
+                        Upload. Process. Listen.
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
-                        <FileText className="h-5 w-5 text-primary flex-shrink-0" />
-                        <span className="text-sm truncate">research-paper.pdf</span>
-                        <Badge variant="secondary" className="text-xs">
-                          2.3MB
-                        </Badge>
-                      </div>
-                      <div className="flex items-center justify-center py-2">
-                        <div className="flex items-center gap-2 text-primary">
-                          <Zap className="h-4 w-4 animate-pulse" />
-                          <span className="text-sm font-medium">AI Processing...</span>
+
+                    <CardContent className="space-y-6">
+                      {/* Upload */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3 p-3 border border-border/50 rounded-lg">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-geist-mono">research.pdf</span>
+                          <Badge variant="outline" className="text-xs font-geist-mono ml-auto">
+                            480kB
+                          </Badge>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20">
-                        <Play className="h-5 w-5 text-primary flex-shrink-0" />
-                        <span className="text-sm font-medium">Ready to listen!</span>
-                        <Badge variant="default" className="text-xs ml-auto">
-                          12:34
-                        </Badge>
+
+                      {/* Processing */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-center py-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-1 h-1 bg-primary rounded-full animate-pulse"></div>
+                            <div className="w-1 h-1 bg-primary rounded-full animate-pulse delay-150"></div>
+                            <div className="w-1 h-1 bg-primary rounded-full animate-pulse delay-300"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Result */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3 p-3 border border-primary/20 rounded-lg bg-primary/5">
+                          <Play className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-geist-mono">ready</span>
+                          <Badge variant="secondary" className="text-xs font-geist-mono ml-auto">
+                            12:34
+                          </Badge>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
               </div>
+
             </div>
           </div>
         </section>
@@ -166,11 +182,10 @@ export default function Page() {
             <h1 className="text-3xl lg:text-5xl font-orbitron text-left w-full py-8">How it works</h1>
             <div className="space-y-12">
               {features.map((feature, index) => (
-                <div 
-                  key={index} 
-                  className={`flex flex-col gap-8 sm:gap-10 lg:gap-12 xl:gap-20 lg:grid lg:grid-cols-2 items-center lg:border-6 border-border/50 p-4 sm:p-6 lg:p-8 rounded-xl ${
-                    index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
-                  }`}
+                <div
+                  key={index}
+                  className={`flex flex-col gap-8 sm:gap-10 lg:gap-12 xl:gap-20 lg:grid lg:grid-cols-2 items-center lg:border-6 border-border/50 p-4 sm:p-6 lg:p-8 rounded-xl ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
+                    }`}
                 >
                   {/* Content */}
                   <div className={`space-y-4 text-center lg:text-left order-2 lg:order-1 ${index % 2 === 1 ? 'lg:col-start-2 lg:order-2' : ''}`}>
