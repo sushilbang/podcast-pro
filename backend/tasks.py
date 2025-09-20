@@ -14,7 +14,6 @@ import requests
 from . import celery_app
 from . import models, crud
 from .database import SessionLocal
-from huggingface_hub import InferenceClient
 
 # LemonFox API setup
 LEMONFOX_API_KEY = os.getenv("LEMONFOX_API_KEY")
@@ -39,14 +38,6 @@ def generate_lemonfox_audio(voice: str, text: str) -> AudioSegment:
     audio_buffer = io.BytesIO(response.content)
     return AudioSegment.from_mp3(audio_buffer)
 
-def generate_kokoro_audio(text: str) -> AudioSegment:
-    """
-    Generate audio using the Kokoro model from Hugging Face.
-    """
-
-    auto_bytes = hf_client.text_to_speech(text)
-    audio_buffer = io.BytesIO(auto_bytes)
-    return AudioSegment.from_mp3(audio_buffer)
 
 # Initialize clients
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
@@ -57,10 +48,6 @@ s3_client = boto3.client(
     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
 )
 BUCKET_NAME = os.getenv("AWS_S3_BUCKET_NAME")
-hf_client = InferenceClient(
-    model="hexgrad/kokoro-82M",
-    token=os.getenv("HF_API_KEY")
-)
 
 def clean_script(script_text: str) -> str:
     """Removes common non-spoken text from an AI-generated script."""

@@ -26,23 +26,23 @@ export function DashboardHeader() {
     if (isLoggingOut) return
 
     setIsLoggingOut(true)
-    try {
-      console.log("Starting logout process...")
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        console.error("Logout error:", error)
-        toast.error("Failed to logout. Please try again.")
-        return
+      try {
+        console.log("Starting logout process...")
+        const { error } = await supabase.auth.signOut()
+        if (error) {
+          console.error("Logout error:", error)
+          toast.error("Failed to logout. Please try again.")
+          return
+        }
+        console.log("Logout successful, redirecting...")
+        toast.success("Logged out successfully")
+        router.replace("/")
+      } catch (error) {
+        console.error("Unexpected logout error:", error)
+        toast.error("An unexpected error occurred during logout")
+      } finally {
+        setIsLoggingOut(false)
       }
-      console.log("Logout successful, redirecting...")
-      toast.success("Logged out successfully")
-      router.replace("/")
-    } catch (error) {
-      console.error("Unexpected logout error:", error)
-      toast.error("An unexpected error occurred during logout")
-    } finally {
-      setIsLoggingOut(false)
-    }
   }
 
   const handleNavigation = (href: string, actionId: string) => {
@@ -54,11 +54,7 @@ export function DashboardHeader() {
 
   return (
     <header className="border-b border-gray-100">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/dashboard" className="text-xl font-light">
-          POD
-        </Link>
-
+      <div className="max-w-6xl mx-auto px-4 py-4 flex justify-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="gap-2" disabled={isLoggingOut}>

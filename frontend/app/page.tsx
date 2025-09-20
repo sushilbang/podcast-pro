@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { FileText, Headphones, Play, ArrowRight, CheckCircle, Shield, Github } from 'lucide-react'
+import { UploadFlowCard } from "@/components/animation"
+
 import Link from "next/link"
 export default function Page() {
   useEffect(() => {
@@ -16,7 +18,7 @@ export default function Page() {
   }, []);
   const features = [
     {
-      title: "Smart Upload",
+      title: "Upload",
       description: "Upload any PDF and watch our AI transform it into engaging audio content in minutes.",
       video: "/videos/upload.mp4",
     },
@@ -29,7 +31,7 @@ export default function Page() {
       title: "Multi model and output type",
       description: "Select from multiple models and output types.",
       video: "/videos/model_op.mp4",
-    },
+    }
   ]
   return (
     <div className="flex flex-col min-h-screen">
@@ -74,20 +76,20 @@ export default function Page() {
         <section className="w-full py-12 sm:py-16 lg:py-20 xl:py-24 bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
           <div className="absolute inset-0 bg-grid-black/[0.02] bg-[size:60px_60px]" />
           <div className="container max-w-screen-xl mx-auto px-4 sm:px-6 relative">
-            <div className="grid gap-8 lg:gap-12 lg:grid-cols-2 items-center">
+            <div className="grid gap-8 items-center">
               {/* Text Section */}
-              <div className="flex flex-col justify-center space-y-6 text-center lg:text-left order-2 lg:order-1">
+              <div className="flex flex-col justify-center items-center space-y-6 text-center">
                 <div className="space-y-4">
                   <h1 className="text-3xl sm:text-4xl xl:text-5xl font-bold tracking-tight leading-tight font-orbitron">
                     Turn Any Content Into Your Personal Podcast
                   </h1>
-                  <p className="text-muted-foreground max-w-2xl mx-auto lg:mx-0 text-base sm:text-lg leading-relaxed font-geist-sans">
+                  <p className="text-muted-foreground mx-auto lg:mx-0 text-base sm:text-lg font-geist-sans">
                     Transform PDFs into high-quality, personalized podcasts with AI-generated voices. Learn on the go
                     with content tailored to your preferences and learning style.
                   </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button size="lg" className="text-base sm:text-lg px-6 sm:px-8 group shadow-lg">
                     <Play className="mr-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform" />
                     <Link href="/login" className="font-orbitron">Start Creating Free</Link>
@@ -114,61 +116,6 @@ export default function Page() {
                     <Shield className="h-4 w-4 text-blue-500" />
                     <span className="font-orbitron">Secure & Private</span>
                   </div>
-                </div>
-              </div>
-
-              {/* Demo Card Section */}
-              <div className="hidden lg:block order-2">
-                <div className="relative w-full max-w-md">
-                  <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-xl"></div>
-                  <Card className="relative z-10 border border-border/50 bg-background/95 backdrop-blur-sm">
-                    <CardHeader className="text-center pb-6">
-                      <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-lg border border-primary/20 bg-primary/5">
-                        <Headphones className="h-5 w-5 text-primary" />
-                      </div>
-                      <CardTitle className="text-lg font-orbitron tracking-wide">
-                        Content → Audio
-                      </CardTitle>
-                      <CardDescription className="text-sm font-geist-mono text-muted-foreground/80">
-                        Upload. Process. Listen.
-                      </CardDescription>
-                    </CardHeader>
-
-                    <CardContent className="space-y-6">
-                      {/* Upload */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-3 p-3 border border-border/50 rounded-lg">
-                          <FileText className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-geist-mono">research.pdf</span>
-                          <Badge variant="outline" className="text-xs font-geist-mono ml-auto">
-                            480kB
-                          </Badge>
-                        </div>
-                      </div>
-
-                      {/* Processing */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-center py-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-1 h-1 bg-primary rounded-full animate-pulse"></div>
-                            <div className="w-1 h-1 bg-primary rounded-full animate-pulse delay-150"></div>
-                            <div className="w-1 h-1 bg-primary rounded-full animate-pulse delay-300"></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Result */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-3 p-3 border border-primary/20 rounded-lg bg-primary/5">
-                          <Play className="h-4 w-4 text-primary" />
-                          <span className="text-sm font-geist-mono">ready</span>
-                          <Badge variant="secondary" className="text-xs font-geist-mono ml-auto">
-                            12:34
-                          </Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
                 </div>
               </div>
 

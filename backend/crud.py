@@ -1,14 +1,14 @@
 from sqlalchemy.orm import Session
 from . import models, schemas
-
+from uuid import UUID
 
 # USER CRUD FUNCTIONS
 
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
-def create_user(db: Session, user: schemas.UserCreate):
-    db_user = models.User(email=user.email)
+def create_user(db: Session, user: schemas.UserCreate, auth_id: UUID):
+    db_user = models.User(email=user.email, auth_user_id=auth_id)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

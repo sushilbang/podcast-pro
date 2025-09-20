@@ -3,6 +3,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
+from uuid import UUID
 
 class PodcastStatus(enum.Enum):
     PENDING =  "pending"
@@ -16,6 +17,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    auth_user_id = Column(UUID(as_uuid=True), unique=True)
     podcasts = relationship("Podcast", back_populates="owner")
     podcast_limit = Column(Integer, default=1)
     podcasts_created = Column(Integer, default=0)

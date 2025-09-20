@@ -25,12 +25,6 @@ export function DashboardClient() {
   const supabase = createClient()
   const router = useRouter()
 
-  useEffect(() => {
-    if (speechModel === 'kokoro-tts') {
-      setOutputType('summary');
-    }
-  }, [speechModel]);
-
   const handleFileSelect = (file: File | null) => {
     // If a file is passed, validate it
     if (file) {
@@ -194,7 +188,6 @@ export function DashboardClient() {
                 <SelectContent>
                   <SelectItem value="lemonfox">LemonFox</SelectItem>
                   <SelectItem value="elevenlabs">ElevenLabs</SelectItem>
-                  <SelectItem value="kokoro-tts">Kokoro</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -203,7 +196,7 @@ export function DashboardClient() {
               <Label className="text-sm font-medium">
                 Output Type <span className="text-red-500">*</span>
               </Label>
-              <Select value={outputType} onValueChange={setOutputType} disabled={isUploading || speechModel === 'kokoro-tts'}>
+              <Select value={outputType} onValueChange={setOutputType} disabled={isUploading}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose output type" />
                 </SelectTrigger>
