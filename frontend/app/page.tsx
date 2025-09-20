@@ -3,10 +3,7 @@
 import type React from "react"
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { FileText, Headphones, Play, ArrowRight, CheckCircle, Shield, Github } from 'lucide-react'
-import { UploadFlowCard } from "@/components/animation"
+import { Headphones, Play, ArrowRight, CheckCircle, Shield, Github } from 'lucide-react'
 
 import Link from "next/link"
 export default function Page() {
