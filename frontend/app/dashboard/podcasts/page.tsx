@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
-import { PodcastsClient } from "@/components/podcasts/podcasts-client"
+import { PodcastListView } from "@/components/podcast-library/podcast-list-view"
 
 export default async function PodcastsPage() {
   const supabase = await createClient()
@@ -33,5 +33,5 @@ export default async function PodcastsPage() {
     }
   }
 
-  return <PodcastsClient initialPodcasts={podcasts} />
+  return <PodcastListView initialPodcasts={podcasts} />
 }

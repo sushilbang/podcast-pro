@@ -1,12 +1,11 @@
 import enum
-from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
-from uuid import UUID
 
 class PodcastStatus(enum.Enum):
-    PENDING =  "pending"
+    PENDING = "pending"
     PROCESSING = "processing"
     COMPLETE = "complete"
     FAILED = "failed"
@@ -17,30 +16,20 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    auth_user_id = Column(UUID(as_uuid=True), unique=True)
-    podcasts = relationship("Podcast", back_populates="owner")
+    auth_user_id = Column(UUID(as_uuid=True), unique=True, nullable=False)
     podcast_limit = Column(Integer, default=1)
     podcasts_created = Column(Integer, default=0)
+    podcasts = relationship("Podcast", back_populates="owner")
 
 class Podcast(Base):
-    __tablename__ = "Podcast"
+    __tablename__ = "podcasts"
 
     id = Column(Integer, primary_key=True, index=True)
     status = Column(String, default=PodcastStatus.PENDING.value)
     original_file_url = Column(String, nullable=True)
     final_podcast_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    title=Column(String, nullable=True)
-    requirements = Column(String, nullable=True)
-    speech_model = Column(String, nullable=True) 
-    output_type = Column(String, nullable=True)
+    title = Column(String, nullable=True)
     duration = Column(Integer, default=0)
-    file_size = Column(String, nullable=True)
-    description = Column(String, nullable=True)
-    tags = Column(String, nullable=True)
-    plays = Column(Integer, default=0)
-    transcript = Column(String, nullable=True)
-    summary = Column(String, nullable=True)
-    chapters = Column(String, nullable=True)   # Storing as a JSON string
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", back_populates="podcasts")

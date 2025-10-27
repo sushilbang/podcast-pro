@@ -169,15 +169,15 @@ export default function PodcastPlayer({
           <Sparkles className="h-4 w-4 mr-2" />
           AI Generated
         </Badge>
-        <h2 className="text-2xl font-bold font-orbitron">{title}</h2>
-        <p className="text-muted-foreground font-geist-mono">Your content has been transformed into a podcast</p>
+        <h2 className="text-2xl font-bold font-inter">{title}</h2>
+        <p className="text-muted-foreground font-inter">Your content has been transformed into a podcast</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Audio Player */}
         <Card className="order-2 lg:order-1">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-orbitron">
+            <CardTitle className="flex items-center gap-2 font-inter font-bold">
               <Headphones className="h-5 w-5" />
               Audio Player
             </CardTitle>
@@ -284,11 +284,11 @@ export default function PodcastPlayer({
         <Card className="order-1 lg:order-2">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 font-orbitron">
+              <CardTitle className="flex items-center gap-2 font-inter font-bold">
                 <FileText className="h-5 w-5" />
                 Input Script
               </CardTitle>
-              <Button variant="outline" size="sm" className="font-orbitron" onClick={() => setShowScript(!showScript)}>
+              <Button variant="outline" size="sm" className="font-inter font-semibold" onClick={() => setShowScript(!showScript)}>
                 {showScript ? "Hide" : "Show"}
               </Button>
             </div>

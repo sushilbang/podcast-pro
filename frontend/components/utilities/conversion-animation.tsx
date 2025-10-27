@@ -31,9 +31,6 @@ const contentTypes = [
   { icon: <FileText className="h-6 w-6" />, name: "research-paper.pdf", type: "PDF Document" },
 ]
 
-// { icon: <Video className="h-6 w-6" />, name: "lecture-video.mp4", type: "Video File" },
-// { icon: <Globe className="h-6 w-6" />, name: "news-article.html", type: "Web Article" },
-
 const conversionSteps: ConversionStep[] = [
   {
     id: "upload",

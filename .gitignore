@@ -1,5 +1,175 @@
-.venv/
+# Environment Variables
 .env
-frontend/node_modules/
+.env.local
+.env.*.local
+frontend/.env.local
+frontend/.env.*.local
+
+# Python
+.venv/
+venv/
+env/
+ENV/
 backend/__pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+instance/
+.webassets-cache
+.pytest_cache/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Node.js / Next.js / Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.nuxt
+frontend/dist
+frontend/.cache/
+frontend/.vuepress/dist
+frontend/.serverless/
+frontend/.fusebox/
+frontend/.dynamodb/
+frontend/.tern-port
+frontend/.next-build-id
+frontend/.vercel
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.sublime-project
+.sublime-workspace
+*.iml
+.iws
+.ipr
+.iml
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.vim
+
+# IDE specific files
+.VSCodeCounter
+.code-workspace
+tsconfig.*.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+*.swp
+*.swo
+*~
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pip-log.txt
+pip-delete-this-directory.txt
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+*.bundle.*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Documentation/Analysis (local only)
+ASYNC_SCALABILITY_ANALYSIS.md
+*.md.local
+notes.md
+
+# Claude Code
+.claude/
+
+# Celery
+celerybeat-schedule
+dump.rdb
+
+# Redis
+*.rdb
+dump.rdb
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Media files (optional - adjust as needed)
+*.mp3
+*.wav
+*.m4a
+
+# Secrets/Credentials
+.credentials
+credentials.json
+private_key.pem
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Misc
+.vscode/settings.json
+.history/
+*.orig

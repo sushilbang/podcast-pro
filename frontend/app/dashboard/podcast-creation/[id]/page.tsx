@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server"
 import { redirect, notFound } from "next/navigation"
-import { PodcastCreationClient } from "@/components/podcast-creation/podcast-creation-client"
+import { PodcastCreationStatus } from "@/components/podcast-creation/podcast-creation-status"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -43,5 +43,5 @@ export default async function PodcastCreationPage({ params }: PageProps) {
     notFound()
   }
 
-  return <PodcastCreationClient podcast={podcast} />
+  return <PodcastCreationStatus podcast={podcast} />
 }

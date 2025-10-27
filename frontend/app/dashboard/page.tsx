@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
-import { DashboardClient } from "@/components/dashboard/dashboard-client"
+import { PodcastUploadForm } from "@/components/dashboard/podcast-upload-form"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -13,5 +13,5 @@ export default async function DashboardPage() {
     return redirect("/login")
   }
 
-  return <DashboardClient />
+  return <PodcastUploadForm />
 }

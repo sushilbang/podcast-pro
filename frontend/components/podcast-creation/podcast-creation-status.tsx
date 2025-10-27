@@ -18,7 +18,7 @@ interface PodcastCreationClientProps {
   podcast: Podcast
 }
 
-export function PodcastCreationClient({ podcast: initialPodcast }: PodcastCreationClientProps) {
+export function PodcastCreationStatus({ podcast: initialPodcast }: PodcastCreationClientProps) {
   const [podcast, setPodcast] = useState(initialPodcast)
   const router = useRouter()
   const supabase = createClient()

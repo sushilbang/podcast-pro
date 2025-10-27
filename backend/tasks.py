@@ -10,34 +10,9 @@ import re
 from pydub import AudioSegment
 import google.generativeai as genai
 from elevenlabs.client import ElevenLabs
-import requests
 from . import celery_app
 from . import models, crud
 from .database import SessionLocal
-
-# LemonFox API setup
-LEMONFOX_API_KEY = os.getenv("LEMONFOX_API_KEY")
-LEMONFOX_API_URL = "https://api.lemonfox.ai/v1/audio/speech"
-
-def generate_lemonfox_audio(voice: str, text: str) -> AudioSegment:
-    headers = {
-        "Authorization": f"Bearer {LEMONFOX_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "input": text,
-        "voice": voice,
-        "response_format": "mp3"
-    }
-
-    response = requests.post(LEMONFOX_API_URL, headers=headers, json=payload)
-
-    if response.status_code != 200:
-        raise Exception(f"Lemonfox API error: {response.status_code} - {response.text}")
-
-    audio_buffer = io.BytesIO(response.content)
-    return AudioSegment.from_mp3(audio_buffer)
-
 
 # Initialize clients
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
@@ -57,65 +32,29 @@ def clean_script(script_text: str) -> str:
     cleaned_text = re.sub(r'\n{2,}', '\n', cleaned_text)
     return cleaned_text.strip()
 
-def generate_enhanced_content(source_text: str, requirements: str = None, output_type: str = "podcast"):
-    """Generate content based on user requirements and output type."""
+def generate_enhanced_content(source_text: str):
+    """Generate content for podcast creation."""
     model = genai.GenerativeModel('gemini-1.5-flash')
-    
-    # Base prompt modifications based on output type
-    length_guidance = {
-        "summary": "Create a concise 5-10 minute summary focusing on key points.",
-        "podcast": "Create a comprehensive 15-30 minute discussion covering all major topics.",
-        "deep-dive": "Create an in-depth 30+ minute analysis with detailed explanations.",
-        "key-points": "Create a brief 3-5 minute overview of only the most essential points."
-    }
-    
-    # Incorporate user requirements
-    user_guidance = f"\n\nUser Requirements: {requirements}" if requirements else ""
-    
+
     summary_prompt = f"""
-    Analyze the following text and create a detailed, structured summary. 
-    {length_guidance.get(output_type, length_guidance["podcast"])}
-    
+    Analyze the following text and create a detailed, structured summary.
+    Create a comprehensive 15-30 minute podcast discussion covering all major topics.
+
     Identify and extract:
     1. The core thesis or main argument
-    2. The top 3-5 key topics or supporting points  
+    2. The top 3-5 key topics or supporting points
     3. Any important data, statistics, or case studies mentioned
     4. The primary conclusion or takeaway
-    
-    {user_guidance}
-    
+
     Do not make up information. Base your summary strictly on the provided text.
-    
+
     ---
     {source_text}
     ---
     """
-    
+
     summary_response = model.generate_content(summary_prompt)
     return summary_response.text
-
-def generate_metadata(summary: str, source_text: str):
-    """Generate additional metadata like description, tags, and chapters."""
-    model = genai.GenerativeModel('gemini-1.5-flash')
-    
-    # Generate description
-    desc_prompt = f"Create a compelling 2-3 sentence description for this content:\n\n{summary}"
-    description = model.generate_content(desc_prompt).text.strip()
-    
-    # Generate tags
-    tags_prompt = f"Generate 3-5 relevant tags/keywords for this content (return as comma-separated list):\n\n{summary}"
-    tags_response = model.generate_content(tags_prompt).text.strip()
-    tags = [tag.strip() for tag in tags_response.split(',')]
-    
-    # Generate chapters (simplified for now)
-    chapters = [
-        {"title": "Introduction", "start": 0, "end": 60},
-        {"title": "Main Discussion", "start": 60, "end": 300},
-        {"title": "Key Insights", "start": 300, "end": 480},
-        {"title": "Conclusion", "start": 480, "end": 600}
-    ]
-    
-    return description, tags, chapters
 
 @celery_app.task
 def create_podcast_task(podcast_id: int):
@@ -151,10 +90,6 @@ def create_podcast_task(podcast_id: int):
         source_text = "".join(page.get_text() for page in doc)
         doc.close()
         
-        # Calculate file size
-        file_size_mb = os.path.getsize(local_filename) / (1024 * 1024)
-        podcast.file_size = f"{file_size_mb:.1f} MB"
-        
         os.remove(local_filename)
 
         if not source_text.strip():
@@ -162,20 +97,9 @@ def create_podcast_task(podcast_id: int):
 
         print(f"[{podcast.id}] Text extracted successfully. Length: {len(source_text)} chars.")
 
-        # Generate enhanced content based on user requirements
-        detailed_summary = generate_enhanced_content(
-            source_text, 
-            podcast.requirements, 
-            podcast.output_type or "podcast"
-        )
-        podcast.summary = detailed_summary
-        
-        # Generate metadata
-        description, tags, chapters = generate_metadata(detailed_summary, source_text)
-        podcast.description = description
-        podcast.tags = json.dumps(tags)
-        podcast.chapters = json.dumps(chapters)
-        
+        # Generate enhanced content for podcast
+        detailed_summary = generate_enhanced_content(source_text)
+
         db.commit()
         
         # Generate title
@@ -187,26 +111,16 @@ def create_podcast_task(podcast_id: int):
         podcast.title = generated_title
         db.commit()
 
-        # Generate script (enhanced based on output type)
-        script_length = {
-            "summary": "approximately 800 words",
-            "podcast": "approximately 1200 words", 
-            "deep-dive": "approximately 2000 words",
-            "key-points": "approximately 500 words"
-        }
-        
+        # Generate script for podcast
         prompt = f"""You are an expert podcast scriptwriter creating a dynamic, engaging script for two hosts: Dorothy (an insightful analyst) and Will (a curious commentator).
 
-        Output Type: {podcast.output_type or 'podcast'}
-        Target Length: {script_length.get(podcast.output_type or 'podcast', '1200 words')}
-        
-        User Requirements: {podcast.requirements or 'Standard conversational format'}
+        Target Length: Approximately 1200 words for a 15-30 minute podcast discussion
 
         Source Material:
         You will be given a detailed summary of a document. Your task is to transform this summary into a natural, two-person dialogue.
 
         Critical Instructions:
-        1. Narrative Flow: Create a narrative that matches the requested output type and user requirements.
+        1. Narrative Flow: Create a natural, engaging podcast discussion.
         2. Focus on Key Insights: Weave the core thesis, key topics, and important data from the summary into the conversation naturally.
         3. Engaging Dialogue: Use varied sentence lengths, rhetorical questions, and natural pauses.
         4. Speaker Roles:
@@ -222,73 +136,50 @@ def create_podcast_task(podcast_id: int):
         
         response = model.generate_content(prompt)
         script = response.text
-        # script = clean_script(raw_script)
-        
-        # Store transcript
-        podcast.transcript = script
-        db.commit()
 
         if not script:
             raise ValueError("Gemini failed to generate a script.")
 
         print(f"[{podcast.id}] Script generated successfully.")
-        print(f"[{podcast.id}] Creating audio with {podcast.speech_model or 'default'} model...")
+        print(f"[{podcast.id}] Creating audio with ElevenLabs...")
 
-        # Voice selection based on speech model
-        if podcast.speech_model and "elevenlabs" in podcast.speech_model:
-            voice_map = {
-                "DOROTHY": "ThT5KcBeYPX3keUQqHPh",
-                "WILL": "bIHbv24MWmeRgasZH58o"
-            }
-            use_elevenlabs = True
-        else:
-            voice_map = {
-                "DOROTHY": "sarah",
-                "WILL": "puck"
-            }
-            use_elevenlabs = False
+        # ElevenLabs voice mapping
+        voice_map = {
+            "DOROTHY": "ThT5KcBeYPX3keUQqHPh",
+            "WILL": "bIHbv24MWmeRgasZH58o"
+        }
 
         final_podcast = AudioSegment.silent(duration=500)
-        if podcast.speech_model and "kokoro" in podcast.speech_model:
-            print(f"[{podcast.id}] Using Kokoro for single-voice summary.")
-            text_for_summary = re.sub(r'^\w+:\s*', '', script, flags=re.MULTILINE)
-            segment = generate_kokoro_audio(text_for_summary)
-            final_podcast += segment
-        else:
-            script_lines = script.strip().split('\n')
+        script_lines = script.strip().split('\n')
 
-            for line in script_lines:
-                line = line.strip()
-                if not line:
-                    continue
+        for line in script_lines:
+            line = line.strip()
+            if not line:
+                continue
 
-                match = re.match(r'^(\w+):\s*(.*)', line)
-                if match:
-                    speaker, text_to_speak = match.groups()
-                    speaker = speaker.upper()
+            match = re.match(r'^(\w+):\s*(.*)', line)
+            if match:
+                speaker, text_to_speak = match.groups()
+                speaker = speaker.upper()
 
-                    if speaker in voice_map:
-                        print(f"[{podcast.id}] Generating audio for {speaker}...")
+                if speaker in voice_map:
+                    print(f"[{podcast.id}] Generating audio for {speaker}...")
 
-                        if use_elevenlabs:
-                            # Use ElevenLabs
-                            audio_iterator = elevenlabs_client.text_to_speech.convert(
-                                voice_id=voice_map[speaker],
-                                text=text_to_speak,
-                                model_id="eleven_multilingual_v2"
-                            )
-                            audio_buffer = io.BytesIO()
-                            for chunk in audio_iterator:
-                                audio_buffer.write(chunk)
-                            audio_buffer.seek(0)
-                            segment = AudioSegment.from_mp3(audio_buffer)
-                        else:
-                            # Use LemonFox
-                            segment = generate_lemonfox_audio(voice_map[speaker], text_to_speak)
-                        
-                        final_podcast += segment
-                    else:
-                        print(f"[{podcast.id}] Warning: Skipping line with unknown speaker: {speaker}")
+                    # Use ElevenLabs for audio generation
+                    audio_iterator = elevenlabs_client.text_to_speech.convert(
+                        voice_id=voice_map[speaker],
+                        text=text_to_speak,
+                        model_id="eleven_multilingual_v2"
+                    )
+                    audio_buffer = io.BytesIO()
+                    for chunk in audio_iterator:
+                        audio_buffer.write(chunk)
+                    audio_buffer.seek(0)
+                    segment = AudioSegment.from_mp3(audio_buffer)
+
+                    final_podcast += segment
+                else:
+                    print(f"[{podcast.id}] Warning: Skipping line with unknown speaker: {speaker}")
 
         print(f"[{podcast.id}] All audio segments generated. Exporting and uploading final MP3...")
 

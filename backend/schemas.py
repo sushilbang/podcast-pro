@@ -1,52 +1,57 @@
+"""
+Pydantic schemas for request/response validation.
+"""
+
 from pydantic import BaseModel
 from datetime import datetime
 from .models import PodcastStatus
 
-# base schema, other schemas will inherit from this
+
+class SignedURLRequest(BaseModel):
+    """Request body for presigned URL generation."""
+    filename: str
+
+
 class PodcastBase(BaseModel):
+    """Base podcast schema."""
     original_file_url: str | None = None
-# while creating the podcast
+
+
 class PodcastCreate(PodcastBase):
-    requirements: str | None = None
-    speech_model: str
-    output_type: str
-#while reading the podcast from the databse
-class Podcast(PodcastBase):
-    id: int
-    owner_id: int
-    status: PodcastStatus
-    created_at: datetime
-    final_podcast_url: str | None = None
-    
-    # Add ALL the new fields
-    title: str | None = None
-    requirements: str | None = None
-    speech_model: str | None = None
-    output_type: str | None = None
-    duration: int
-    file_size: str | None = None
-    description: str | None = None
-    tags: str | None = None
-    plays: int
-    transcript: str | None = None
-    summary: str | None = None
-    chapters: str | None = None
-    # This is a Pydantic configuration setting that allows it to work
-    # with SQLAlchemy models.
-    class Config:
-        orm_mode = True
-
-class UserBase(BaseModel):
-    email: str
-
-class UserCreate(UserBase):
+    """Schema for creating a new podcast."""
     pass
 
-class User(UserBase):
+
+class Podcast(PodcastBase):
+    """Schema for reading podcast from database."""
     id: int
+    owner_id: int
+    status: str
     created_at: datetime
-    podcasts: list[Podcast] = [] # user can have a list of podcasts
+    final_podcast_url: str | None = None
+    title: str | None = None
+    duration: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+class UserBase(BaseModel):
+    """Base user schema."""
+    email: str
+
+
+class UserCreate(UserBase):
+    """Schema for creating a new user."""
+    pass
+
+
+class User(UserBase):
+    """Schema for reading user from database."""
+    id: int
+    created_at: datetime
+    podcasts: list[Podcast] = []
+
+    class Config:
+        from_attributes = True
 

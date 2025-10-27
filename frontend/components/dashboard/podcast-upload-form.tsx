@@ -1,10 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { UploadArea } from "@/components/dashboard/upload-area"
@@ -14,16 +13,49 @@ import { toast } from "sonner"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL!
 
-export function DashboardClient() {
+interface CreditsInfo {
+  character_count: number
+  character_limit: number
+  characters_available: number
+  usage_percentage: number
+  status: string
+}
+
+export function PodcastUploadForm() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isNavigatingToLibrary, setIsNavigatingToLibrary] = useState(false)
   const [requirements, setRequirements] = useState("")
-  const [speechModel, setSpeechModel] = useState("")
-  const [outputType, setOutputType] = useState("")
+  const [credits, setCredits] = useState<CreditsInfo | null>(null)
+  const [isLoadingCredits, setIsLoadingCredits] = useState(true)
 
   const supabase = createClient()
   const router = useRouter()
+
+  // Fetch global ElevenLabs credits on component mount
+  useEffect(() => {
+    const fetchCredits = async () => {
+      try {
+        setIsLoadingCredits(true)
+        const res = await fetch(`${API_URL}/elevenlabs/credits`)
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({ detail: "Failed to fetch credits" }))
+          throw new Error(errorData.detail || `HTTP ${res.status}`)
+        }
+        const creditsData = await res.json()
+        setCredits(creditsData)
+      } catch (error) {
+        console.error("Error fetching credits:", error)
+        const errorMessage = error instanceof Error ? error.message : "Failed to fetch ElevenLabs credits"
+        toast.error(`Credits: ${errorMessage}`)
+      } finally {
+        setIsLoadingCredits(false)
+      }
+    }
+
+    fetchCredits()
+  }, [])
 
   const handleFileSelect = (file: File | null) => {
     // If a file is passed, validate it
@@ -60,8 +92,8 @@ export function DashboardClient() {
   }
 
   const handleUpload = async () => {
-    if (!selectedFile || !speechModel || !outputType) {
-      toast.error("Please fill in all required fields")
+    if (!selectedFile) {
+      toast.error("Please add a file")
       return
     }
 
@@ -111,8 +143,6 @@ export function DashboardClient() {
         body: JSON.stringify({
           original_file_url: `${url}${fields.key}`,
           requirements: requirements || null,
-          speech_model: speechModel,
-          output_type: outputType,
         }),
       })
 
@@ -128,8 +158,6 @@ export function DashboardClient() {
       // Reset form
       setSelectedFile(null)
       setRequirements("")
-      setSpeechModel("")
-      setOutputType("")
 
       // Redirect to creation status page (as discussed in previous conversation)
       router.push(`/dashboard/podcast-creation/${podcastResponse.id}`)
@@ -147,6 +175,55 @@ export function DashboardClient() {
       <DashboardHeader />
 
       <main className="max-w-2xl mx-auto px-4 py-16">
+        {/* ElevenLabs Credits Section */}
+        <div className="mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+          {isLoadingCredits ? (
+            <div className="flex items-center gap-2">
+              <LoadingSpinner size="sm" />
+              <p className="text-sm text-gray-600">Loading credits...</p>
+            </div>
+          ) : credits ? (
+            <div className="space-y-2">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">ElevenLabs Credits Available Globally</p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    {credits.characters_available.toLocaleString()} characters available
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-gray-900">
+                    {credits.usage_percentage.toFixed(1)}%
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    {credits.character_count.toLocaleString()} / {credits.character_limit.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+              {/* Progress Bar */}
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className={`h-2 rounded-full transition-all ${
+                    credits.usage_percentage > 80
+                      ? "bg-red-500"
+                      : credits.usage_percentage > 50
+                      ? "bg-yellow-500"
+                      : "bg-green-500"
+                  }`}
+                  style={{ width: `${credits.usage_percentage}%` }}
+                />
+              </div>
+              {credits.characters_available < 5000 && (
+                <p className="text-xs text-red-600 mt-2">
+                  ⚠️ Low credits: You may not have enough characters for a podcast generation
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600">Unable to load credits information</p>
+          )}
+        </div>
+
         {/* Creation Form */}
         <div className="space-y-8">
           {/* File Upload */}
@@ -175,44 +252,11 @@ export function DashboardClient() {
             />
           </div>
 
-          {/* Model Selection */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">
-                Speech Model <span className="text-red-500">*</span>
-              </Label>
-              <Select value={speechModel} onValueChange={setSpeechModel} disabled={isUploading}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose voice model" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="lemonfox">LemonFox</SelectItem>
-                  <SelectItem value="elevenlabs">ElevenLabs</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">
-                Output Type <span className="text-red-500">*</span>
-              </Label>
-              <Select value={outputType} onValueChange={setOutputType} disabled={isUploading}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose output type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="summary">Summary</SelectItem>
-                  <SelectItem value="podcast">Podcast</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <Button
               onClick={handleUpload}
-              disabled={!selectedFile || !speechModel || !outputType || isUploading}
+              disabled={!selectedFile || isUploading}
               className="flex-1"
             >
               {isUploading ? (

@@ -8,8 +8,8 @@ load_dotenv()
 #entry point to database
 engine = create_engine(
     os.getenv("DATABASE_URL"),
-    pool_size=5,          # Default connections
-    max_overflow=10,      # Temp connections beyond pool_size
+    pool_size=15,          # Default connections
+    max_overflow=15,      # Temp connections beyond pool_size
     pool_pre_ping=True,   # Checks connections are alive
     pool_recycle=3600     # Recycle connections hourly (prevents timeouts)
 )

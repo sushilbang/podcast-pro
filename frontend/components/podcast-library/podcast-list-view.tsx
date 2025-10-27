@@ -61,7 +61,7 @@ function PodcastSkeleton() {
   )
 }
 
-export function PodcastsClient({ initialPodcasts }: PodcastsClientProps) {
+export function PodcastListView({ initialPodcasts }: PodcastsClientProps) {
   const [podcasts] = useState<Podcast[]>(initialPodcasts)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")

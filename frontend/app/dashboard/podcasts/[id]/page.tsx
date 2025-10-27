@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/server"
 import { redirect, notFound } from "next/navigation"
-import { PodcastPlayerClient } from "@/components/podcast-player/podcast-player-client"
-import type { Podcast as PodcastType } from "@/components/podcast-player/podcast-player-client"
+import { PodcastDetailView } from "@/components/podcast-player/podcast-detail-view"
+import type { Podcast as PodcastType } from "@/components/podcast-player/podcast-detail-view"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -49,5 +49,5 @@ export default async function PodcastPlayerPage({ params }: PageProps) {
     notFound()
   }
 
-  return <PodcastPlayerClient podcast={podcast} />
+  return <PodcastDetailView podcast={podcast} />
 }
