@@ -18,7 +18,7 @@ class AuthService:
     @staticmethod
     def verify_and_decode_token(token: str) -> Dict[str, Any]:
         """
-        Verify and decode JWT token from Supabase.
+        Verify and decode JWT token from Supabase with signature verification.
 
         Args:
             token: JWT token string
@@ -30,19 +30,30 @@ class AuthService:
             HTTPException: If token is invalid or verification fails
         """
         try:
-            # In development, decode without signature verification
-            # In production, would verify against Supabase public key
-            decoded = jwt.decode(token, options={"verify_signature": False})
+            # Verify signature using Supabase JWT secret (HS256 algorithm)
+            # Supabase uses HS256 algorithm by default
+            decoded = jwt.decode(
+                token,
+                settings.SUPABASE_JWT_SECRET,
+                algorithms=["HS256"]
+            )
+            logger.info(f"[AUTH] ✓ JWT signature verified for user: {decoded.get('sub')}")
             return decoded
 
+        except jwt.ExpiredSignatureError as e:
+            logger.warning(f"[AUTH] ✗ Token expired: {str(e)}")
+            raise HTTPException(status_code=401, detail="Token expired") from e
+        except jwt.InvalidSignatureError as e:
+            logger.warning(f"[AUTH] ✗ Invalid token signature: {str(e)}")
+            raise HTTPException(status_code=401, detail="Invalid token signature") from e
         except jwt.DecodeError as e:
-            logger.warning(f"Invalid token format: {str(e)}")
+            logger.warning(f"[AUTH] ✗ Invalid token format: {str(e)}")
             raise HTTPException(status_code=401, detail="Invalid token format") from e
         except jwt.InvalidTokenError as e:
-            logger.warning(f"Invalid token: {str(e)}")
+            logger.warning(f"[AUTH] ✗ Invalid token: {str(e)}")
             raise HTTPException(status_code=401, detail="Invalid token") from e
         except Exception as e:
-            logger.error(f"Unexpected authentication error: {str(e)}")
+            logger.error(f"[AUTH] ✗ Unexpected authentication error: {str(e)}")
             raise HTTPException(status_code=401, detail="Authentication failed") from e
 
     @staticmethod

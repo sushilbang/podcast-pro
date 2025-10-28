@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { signInWithGoogle } from "@/app/login/actions"
+import { signInWithGoogle } from "@/utils/supabase/actions"
 import { Loader } from "lucide-react"
 
 export function LoginForm() {

@@ -739,7 +739,7 @@ export default function Page() {
             POD
           </div>
           <div className="nav-links">
-            <Link href="/login">Get Started</Link>
+            <Link href="/auth/login">Get Started</Link>
             <Link href="/demo">Watch Demo</Link>
           </div>
         </div>

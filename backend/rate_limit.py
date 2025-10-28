@@ -14,16 +14,33 @@ limiter = Limiter(key_func=get_remote_address)
 
 # Rate limit configurations
 RATE_LIMITS = {
-    # Authentication and uploads
-    "sign_url": "20/hour",  # Presigned URL generation
+    # ============================================================================
+    # AUTHENTICATION ENDPOINTS (For OAuth and Email/Password flows)
+    # ============================================================================
+    "login_oauth": "10/hour",  # OAuth login endpoint (Google, GitHub, etc.)
+    "login_email": "5/hour",  # Email/password login endpoint (stricter to prevent brute force)
+    "signup_email": "3/hour",  # Email/password signup endpoint (very strict)
+    "forgot_password": "3/hour",  # Password reset request (strict to prevent email spam)
+    "reset_password": "5/hour",  # Password reset confirmation (slightly more lenient)
+    "verify_email": "5/hour",  # Email verification endpoint
 
-    # Podcast creation
+    # ============================================================================
+    # FILE UPLOADS & S3
+    # ============================================================================
+    "sign_url": "20/hour",  # Presigned URL generation for S3 uploads
+
+    # ============================================================================
+    # PODCAST OPERATIONS
+    # ============================================================================
     "create_podcast": "10/hour",  # Creating podcasts
     "get_podcast": "100/hour",  # Fetching single podcast
     "list_podcasts": "50/hour",  # Listing user's podcasts
 
-    # Health checks (no limit)
-    "health": "1000/hour",
+    # ============================================================================
+    # ADMIN/MONITORING
+    # ============================================================================
+    "get_credits": "100/hour",  # ElevenLabs credits check endpoint
+    "health": "1000/hour",  # Health checks (minimal restriction)
 }
 
 def setup_rate_limiting(app: FastAPI):

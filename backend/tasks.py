@@ -1,7 +1,4 @@
 import os
-import time
-import json
-from urllib import response
 import fitz
 import boto3
 import tempfile
@@ -11,7 +8,7 @@ from pydub import AudioSegment
 import google.generativeai as genai
 from elevenlabs.client import ElevenLabs
 from . import celery_app
-from . import models, crud
+from . import models
 from .database import SessionLocal
 
 # Initialize clients
@@ -56,8 +53,19 @@ def generate_enhanced_content(source_text: str):
     summary_response = model.generate_content(summary_prompt)
     return summary_response.text
 
-@celery_app.task
-def create_podcast_task(podcast_id: int):
+@celery_app.task(
+    bind=True,
+    max_retries=3,
+    autoretry_for=(Exception,),
+    retry_kwargs={'max_retries': 3},
+    retry_backoff=True,
+    retry_backoff_max=600,  # Max backoff time 10 minutes
+    retry_jitter=True,  # Add random jitter to prevent thundering herd
+    soft_time_limit=1800,  # 30 minutes soft limit
+    time_limit=2100,  # 35 minutes hard limit
+    track_started=True,
+)
+def create_podcast_task(self, podcast_id: int):
     """Enhanced background task to process files and generate podcasts with new features."""
     db = SessionLocal()
     try:
@@ -213,7 +221,20 @@ def create_podcast_task(podcast_id: int):
         if 'podcast' in locals() and db.is_active:
             podcast.status = models.PodcastStatus.FAILED.value
             db.commit()
-        raise
+
+        # Log retry attempt with exponential backoff
+        exc_message = f"Task failed for podcast {podcast_id}: {str(e)}"
+        print(f"[CELERY] Retry attempt {self.request.retries}/{self.max_retries}: {exc_message}")
+
+        # Retry with exponential backoff
+        try:
+            raise self.retry(exc=e, countdown=min(5 * (2 ** self.request.retries), 600))
+        except self.MaxRetriesExceededError:
+            print(f"[CELERY] Max retries exceeded for podcast {podcast_id}. Task failed permanently.")
+            if 'podcast' in locals() and db.is_active:
+                podcast.status = models.PodcastStatus.FAILED.value
+                db.commit()
+            raise
     finally:
         db.close()
 

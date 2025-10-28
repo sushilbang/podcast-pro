@@ -13,6 +13,7 @@ class Settings:
     # Supabase
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
     SUPABASE_KEY: str = os.getenv("SUPABASE_KEY", "")
+    SUPABASE_JWT_SECRET: str = os.getenv("SUPABASE_JWT_SECRET", "")
     DATABASE_URL: str = os.getenv("DATABASE_URL", "")
 
     # AWS S3
@@ -24,7 +25,7 @@ class Settings:
     # Application
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
     API_GENERATION_ENABLED: bool = os.getenv("API_GENERATION_ENABLED", "true").lower() == "true"
-    RATE_LIMIT_ENABLED: bool = os.getenv("RATE_LIMIT_ENABLED", "false").lower() == "true"
+    RATE_LIMIT_ENABLED: bool = os.getenv("RATE_LIMIT_ENABLED", "true").lower() == "true"  # Enabled by default
 
     # Redis (optional)
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")

@@ -6,7 +6,7 @@ FastAPI application for podcast creation and management.
 import logging
 from typing import Annotated
 
-from fastapi import FastAPI, Depends, HTTPException, Header, Request
+from fastapi import FastAPI, Depends, HTTPException, Header, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
@@ -102,18 +102,11 @@ def get_current_user(
             metadata=token_claims.get("user_metadata", {})
         )
 
-        # Auto-create database user on first API call
+        # Auto-create or get database user on first API call
+        # Uses atomic get_or_create to avoid race conditions
         if db and email:
-            existing_user = crud.get_user_by_email(db, email=email)
-            if not existing_user:
-                crud.create_user(
-                    db,
-                    user=schemas.UserCreate(email=email),
-                    auth_id=user_id
-                )
-                logger.info(f"[AUTH] ✓ New database user created: {email}")
-            else:
-                logger.info(f"[AUTH] ✓ Existing user found in database: {email}")
+            crud.get_or_create_user(db, email=email, auth_id=user_id)
+            logger.info(f"[AUTH] ✓ User ensured in database: {email}")
 
         return user
 
@@ -136,8 +129,9 @@ def health_check(request: Request):
 
 
 
+
 @app.get("/elevenlabs/credits", response_model=dict)
-@limiter.limit("100/hour")
+@limiter.limit(RATE_LIMITS["get_credits"])
 def get_global_credits(request: Request):
     """
     Get global ElevenLabs account credits and usage information.
@@ -210,13 +204,6 @@ def create_podcast(
 
     # Get or create user
     db_user = crud.get_user_by_email(db, email=current_user.email)
-    if not db_user:
-        db_user = crud.create_user(
-            db,
-            user=schemas.UserCreate(email=current_user.email),
-            auth_id=current_user.id
-        )
-        logger.info(f"[PODCAST] Created new user in database: {current_user.email}")
 
     logger.info(f"[PODCAST] User found/created: {db_user.id}. Podcasts: {db_user.podcasts_created}/{db_user.podcast_limit}")
 

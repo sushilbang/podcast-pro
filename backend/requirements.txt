@@ -25,3 +25,6 @@ python-dotenv
 fastapi-limiter
 slowapi
 PyJWT
+kombu
+python-ulid
+httpx
