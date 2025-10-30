@@ -10,9 +10,6 @@ export const signupWithEmailPassword = async (prev: unknown, formData: FormData)
   const {data, error} = await supabase.auth.signUp({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
-    options: {
-      emailRedirectTo: `${baseURL}/auth/confirm?next=/dashboard`
-    }
   })
 
   if (error) {
