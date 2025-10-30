@@ -67,7 +67,7 @@ export const updatePassword = async (prev: unknown, formData: FormData) => {
 
 export async function signInWithGoogle() {
   const supabase = await createClient();
-  const baseURL = process.env.SITE_URL;
+  const baseURL = process.env.NEXT_PUBLIC_SITE_URL;
   console.log(`base url: ${baseURL}`)
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
