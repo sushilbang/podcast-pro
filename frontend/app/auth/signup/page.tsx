@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader, AlertCircle, CheckCircle } from "lucide-react"
-import { GenerationDisabledPage } from "@/components/error-states/generation-disabled-page"
 import { signupWithEmailPassword } from "@/utils/supabase/actions"
 import { useAuthRedirect } from "@/utils/hooks/useAuthRedirect"
 
@@ -19,12 +18,6 @@ export default function SignupPage() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
 
-  // Check if generation is enabled
-  const generationEnabled = process.env.GENERATION_ENABLED !== 'false'
-
-  if (!generationEnabled) {
-    return <GenerationDisabledPage />
-  }
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
