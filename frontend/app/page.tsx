@@ -4,8 +4,10 @@ import type React from "react"
 import { useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useAuthRedirect } from "@/utils/hooks/useAuthRedirect"
 
 export default function Page() {
+  useAuthRedirect()
   const navbarRef = useRef<HTMLDivElement>(null)
   // navbar scroll effect
   useEffect(() => {
