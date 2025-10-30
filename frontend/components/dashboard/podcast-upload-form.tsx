@@ -31,7 +31,7 @@ export function PodcastUploadForm() {
 
   const supabase = createClient()
   const router = useRouter()
-
+  const generationEnabled = process.env.GENERATION_ENABLED !== 'false';
   // Fetch global ElevenLabs credits on component mount
   useEffect(() => {
     const fetchCredits = async () => {
@@ -113,7 +113,10 @@ export function PodcastUploadForm() {
       // Get presigned URL
       const presignRes = await fetch(`${API_URL}/uploads/sign-url/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({ filename: selectedFile.name }),
       })
 
@@ -256,7 +259,7 @@ export function PodcastUploadForm() {
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <Button
               onClick={handleUpload}
-              disabled={!selectedFile || isUploading}
+              disabled={!generationEnabled || !selectedFile || isUploading}
               className="flex-1"
             >
               {isUploading ? (

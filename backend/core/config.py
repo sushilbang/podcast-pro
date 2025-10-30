@@ -14,6 +14,7 @@ class Settings:
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
     SUPABASE_KEY: str = os.getenv("SUPABASE_KEY", "")
     SUPABASE_JWT_SECRET: str = os.getenv("SUPABASE_JWT_SECRET", "")
+    SUPABASE_JWT_AUDIENCE: str = os.getenv("SUPABASE_JWT_AUDIENCE", "authenticated")  # Default to 'authenticated'
     DATABASE_URL: str = os.getenv("DATABASE_URL", "")
 
     # AWS S3
@@ -34,11 +35,22 @@ class Settings:
     CORS_ORIGINS: list = [
         "http://localhost:3000",
         "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "http://127.0.0.1:8000",
         "https://podcast-pro-gilt.vercel.app"
     ]
 
     # File upload
     MAX_FILE_SIZE_MB: int = 10
+
+    # Email Configuration (SMTP)
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USERNAME: str = os.getenv("SMTP_USERNAME", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SMTP_USE_TLS: bool = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
+    SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", "")
 
 
 @lru_cache

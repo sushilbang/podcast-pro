@@ -8,7 +8,7 @@ import logging
 from datetime import datetime
 from botocore.config import Config
 from botocore.exceptions import ClientError
-from .config import get_settings
+from backend.core import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +89,32 @@ class S3Service:
             Public HTTPS URL to the file
         """
         return f"https://{self.bucket_name}.s3.{settings.AWS_REGION}.amazonaws.com/{s3_key}"
+
+    def generate_presigned_download_url(self, s3_key: str, expiration: int = 3600) -> str:
+        """
+        Generate a presigned GET URL for downloading/streaming a file from S3.
+
+        Args:
+            s3_key: S3 object key
+            expiration: URL expiration time in seconds (default: 1 hour)
+
+        Returns:
+            Presigned HTTPS URL to the file
+
+        Raises:
+            Exception: If presigned URL generation fails
+        """
+        try:
+            url = self.client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': self.bucket_name, 'Key': s3_key},
+                ExpiresIn=expiration
+            )
+            logger.info(f"Generated presigned download URL for {s3_key}")
+            return url
+        except ClientError as e:
+            logger.error(f"Failed to generate presigned download URL: {str(e)}")
+            raise Exception("Could not generate download URL") from e
 
 
 # Singleton instance

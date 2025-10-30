@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
+import { useAuthRedirect } from "@/utils/hooks/useAuthRedirect"
 
 // Dynamic import to avoid hydration errors
 const PodcastPlayer = dynamic(() => import("@/components/podcast-player/podcast-simple-player"), {
@@ -22,6 +23,7 @@ const PodcastPlayer = dynamic(() => import("@/components/podcast-player/podcast-
 })
 
 export default function DemoPage() {
+  useAuthRedirect()
   const sampleScript = `The ancient city of Vijayanagara, now modern-day Hampi in Karnataka, India, was once the glorious capital of the Vijayanagara Empire. Founded in the 14th century, it was a thriving metropolis, renowned for its immense wealth, magnificent temples, and sophisticated water management systems. 
 
 European travelers of the time described it as one of the most prosperous and beautiful cities in the world. Its decline began with the Battle of Talikota in 1565, leading to its eventual abandonment. 

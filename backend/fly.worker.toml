@@ -1,8 +1,0 @@
-app = "podcast-pro-worker"
-primary_region = "bom"
-
-[build]
-  dockerfile = "Dockerfile"
-
-[processes]
-  app = "celery -A backend.celery_worker worker --loglevel=info"

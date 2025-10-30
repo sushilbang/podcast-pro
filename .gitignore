@@ -173,3 +173,13 @@ htmlcov/
 .vscode/settings.json
 .history/
 *.orig
+
+md/
+
+docker-compose.yml
+Dockerfile.api
+Dockerfile.worker
+fly-worker.toml
+fly.toml
+
+.dockerignore

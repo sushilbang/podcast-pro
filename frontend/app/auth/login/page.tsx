@@ -6,22 +6,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader, AlertCircle } from "lucide-react"
-import { GenerationDisabledPage } from "@/components/error-states/generation-disabled-page"
 import { signInWithGoogle, signinWithEmailPassword } from "@/utils/supabase/actions"
+import { useAuthRedirect } from "@/utils/hooks/useAuthRedirect"
 
 export default function LoginPage() {
+  useAuthRedirect()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [error, setError] = useState("")
-
-  // Check if generation is enabled
-  const generationEnabled = process.env.GENERATION_ENABLED !== 'false'
-
-  if (!generationEnabled) {
-    return <GenerationDisabledPage />
-  }
 
   const handleEmailLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -111,6 +105,10 @@ export default function LoginPage() {
               </Button>
             </form>
 
+            <Link href="/auth/reset" className="text-sm font-semibold text-right block">
+              Forgot password?
+            </Link>
+
             {/* Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -154,7 +152,7 @@ export default function LoginPage() {
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/auth/signup"
-                  className="text-blue-600 hover:text-blue-700 font-semibold"
+                  className="text-foreground font-semibold"
                 >
                   Sign up
                 </Link>

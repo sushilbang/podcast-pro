@@ -14,30 +14,18 @@ celery_app = Celery(
     include=['backend.tasks']
 )
 
-# Comprehensive Celery configuration for production robustness
+# Celery configuration
 celery_app.conf.update(
     # Task Tracking
     task_track_started=True,
 
-    # Retry Configuration
-    # Tasks will retry on connection errors, timeouts, and operational errors
-    task_autoretry_for={
-        'exc': (Exception,),
-        'max_retries': 3,
-        'countdown': 5,  # Initial retry after 5 seconds
-    },
-    task_max_retries=3,  # Maximum number of retries per task
-    task_default_retry_delay=5,  # Default retry delay in seconds
-
     # Task Time Limits
-    # Soft limit: Task receives SIGUSR1, allowing graceful shutdown (in seconds)
-    # Hard limit: Task is forcefully killed (in seconds)
-    task_soft_time_limit=1800,   # 30 minutes soft limit for podcast generation
-    task_time_limit=2100,         # 35 minutes hard limit (5 min grace period)
+    # Note: Soft timeouts not supported on Windows (requires SIGUSR1 signal)
+    task_time_limit=2100,  # 35 minutes hard limit for podcast generation
 
     # Worker Configuration
-    worker_prefetch_multiplier=1,  # Prefetch 1 task per worker (prevents monopolization)
-    worker_max_tasks_per_child=1000,  # Restart worker after 1000 tasks (memory leak prevention)
+    worker_prefetch_multiplier=1,  # Prefetch 1 task per worker
+    worker_max_tasks_per_child=1000,  # Restart worker after 1000 tasks
 
     # Task Serialization
     task_serializer='json',
@@ -46,7 +34,7 @@ celery_app.conf.update(
     timezone='UTC',
     enable_utc=True,
 
-    # Task Routes (can be extended as new task types are added)
+    # Task Routes
     task_routes={
         'backend.tasks.create_podcast_task': {'queue': 'podcasts'},
     },
@@ -61,6 +49,5 @@ celery_app.conf.update(
     task_default_routing_key='default',
 
     # Result Backend Configuration
-    result_expires=3600,  # Results expire after 1 hour
-    result_extended=True,  # Store detailed task execution info
+    result_expires=3600,
 )

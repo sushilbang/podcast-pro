@@ -2,8 +2,6 @@
 
 import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
-import { headers } from "next/headers"
-import { Preahvihear } from "next/font/google"
 
 export const signupWithEmailPassword = async (prev: unknown, formData: FormData) => {
   const supabase = await createClient();
@@ -32,6 +30,37 @@ export const signinWithEmailPassword = async (prev: unknown, formData: FormData)
   if (error) {
     console.error("Signin error:", error)
     throw new Error("Failed to sign in")
+  }
+  redirect("/dashboard")
+}
+
+export const sendResetPasswordEmail = async (prev: unknown, formData: FormData) => {
+  const supabase = await createClient();
+
+  const {data, error} = await supabase.auth.resetPasswordForEmail(
+    formData.get('email') as string,
+  )
+
+  if(error) {
+    console.log('Error sending reset password email:', error)
+    throw new Error("Failed to send reset password email")
+  }
+
+  return {
+    success: 'Please check your email for password reset instructions',
+    error: null
+  }
+
+}
+
+export const updatePassword = async (prev: unknown, formData: FormData) => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.updateUser({
+    password: formData.get('password') as string,
+  })
+  if (error) {
+    console.error("Update password error:", error)
+    throw new Error("Failed to update password")
   }
   redirect("/dashboard")
 }

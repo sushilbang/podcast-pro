@@ -10,7 +10,8 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return redirect("/login")
+    console.log("No user found, redirecting to login")
+    return redirect("/")
   }
 
   return <PodcastUploadForm />

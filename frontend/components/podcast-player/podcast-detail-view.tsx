@@ -11,7 +11,6 @@ import {
   SkipForward,
   Volume2,
   VolumeX,
-  Download,
   ArrowLeft,
   Clock,
   Calendar,
@@ -19,26 +18,14 @@ import {
 import Link from "next/link"
 import ClientOnly from "@/components/utilities/client-only-wrapper";
 
-type Chapter = {
-  title: string
-  start: number
-  end: number
-}
-
 export type Podcast = {
-  id: number
+  id: string
   title: string
   status: "complete"
   final_podcast_url: string
+  stream_url: string
   created_at: string
   duration: number
-  file_size: string
-  description: string
-  summary: string
-  tags: string[]
-  plays: number
-  transcript: string
-  chapters: Chapter[]
 }
 
 interface PodcastPlayerClientProps {
@@ -142,7 +129,7 @@ export function PodcastDetailView({ podcast }: PodcastPlayerClientProps) {
 
   return (
     <div className={`min-h-screen bg-white fixed inset-0 z-50`}>
-      <audio ref={audioRef} src={podcast.final_podcast_url} preload="metadata" />
+      <audio ref={audioRef} src={podcast.stream_url} preload="metadata" />
 
       {/* Header */}
       <header className="border-b border-black/10 sticky top-0 bg-white z-40">
@@ -154,11 +141,6 @@ export function PodcastDetailView({ podcast }: PodcastPlayerClientProps) {
               </Link>
             </Button>
             <h1 className="text-sm sm:text-base font-medium truncate flex-1 mx-4">{podcast.title}</h1>
-            <Button variant="ghost" size="sm" asChild className="shrink-0 hover:bg-gray-100">
-              <a href={podcast.final_podcast_url} download={`${podcast.title}.mp3`}>
-                <Download className="w-4 h-4" />
-              </a>
-            </Button>
           </div>
         </div>
       </header>

@@ -10,13 +10,11 @@ from fastapi import FastAPI, Depends, HTTPException, Header, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from .config import get_settings
-from .database import SessionLocal, engine
-from .auth import auth_service
-from .services import s3_service
-from .rate_limit import limiter, setup_rate_limiting, RATE_LIMITS
-from .elevenlabs_service import get_elevenlabs_credits, has_sufficient_credits
-from . import models, schemas, crud, tasks
+from backend.core import get_settings, SessionLocal, engine
+from backend.services import auth_service, s3_service, get_elevenlabs_credits, has_sufficient_credits
+from backend.utils import limiter, setup_rate_limiting, RATE_LIMITS
+from backend.models import models, schemas, crud
+from . import tasks
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -71,23 +69,19 @@ def get_current_user(
     Works with all Supabase auth providers (Google, GitHub, email, etc.)
     """
     if not authorization:
-        logger.warning("[AUTH] ✗ Authorization header missing")
         raise HTTPException(status_code=401, detail="Authorization header missing")
 
     # Extract Bearer token
     parts = authorization.split(" ")
     if len(parts) != 2 or parts[0].lower() != "bearer":
-        logger.warning("[AUTH] ✗ Invalid authorization format")
         raise HTTPException(status_code=401, detail="Invalid authorization format")
 
     token = parts[1]
-    logger.info("[AUTH] Token received, attempting verification...")
 
     try:
         # Decode JWT token
         token_claims = auth_service.verify_and_decode_token(token)
         user_id, email = auth_service.extract_user_info(token_claims)
-        logger.info(f"[AUTH] ✓ Token verified. User ID: {user_id}, Email: {email}")
 
         # Create a user object from token claims
         class AuthenticatedUser:
@@ -248,11 +242,29 @@ def create_podcast(
 
 @app.get("/podcasts/{podcast_id}", response_model=schemas.Podcast)
 @limiter.limit(RATE_LIMITS["get_podcast"])
-def get_podcast(request: Request, podcast_id: int, db: Session = Depends(get_db)):
-    """Retrieve a specific podcast by ID."""
+def get_podcast(request: Request, podcast_id: str, db: Session = Depends(get_db)):
+    """Retrieve a specific podcast by ID with secure streaming URL."""
     db_podcast = crud.get_podcast(db, podcast_id=podcast_id)
     if db_podcast is None:
         raise HTTPException(status_code=404, detail="Podcast not found")
+
+    # Generate presigned URL for streaming if podcast is complete
+    if db_podcast.final_podcast_url and db_podcast.status == "complete":
+        try:
+            # Extract S3 key from the stored URL (format: podcasts/podcast_{id}.mp3)
+            s3_key = f"podcasts/podcast_{db_podcast.id}.mp3"
+            stream_url = s3_service.generate_presigned_download_url(s3_key, expiration=3600)
+            # Add stream_url to response (convert to dict to add the field)
+            podcast_dict = db_podcast.__dict__.copy()
+            podcast_dict['stream_url'] = stream_url
+            return podcast_dict
+        except Exception as e:
+            logger.error(f"[PODCAST] Failed to generate stream URL for podcast {podcast_id}: {str(e)}")
+            # Still return the podcast, but without stream_url
+            podcast_dict = db_podcast.__dict__.copy()
+            podcast_dict['stream_url'] = None
+            return podcast_dict
+
     return db_podcast
 
 

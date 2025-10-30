@@ -1,7 +1,6 @@
 import { createClient } from "@/utils/supabase/server"
 import { redirect, notFound } from "next/navigation"
 import { PodcastDetailView } from "@/components/podcast-player/podcast-detail-view"
-import type { Podcast as PodcastType } from "@/components/podcast-player/podcast-detail-view"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -32,13 +31,7 @@ export default async function PodcastPlayerPage({ params }: PageProps) {
         cache: "no-store",
       })
       if (res.ok) {
-        const data = await res.json();
-        const parsedPodcast: PodcastType = {
-          ...data,
-          tags: JSON.parse(data.tags || '[]'),
-          chapters: JSON.parse(data.chapters || '[]'),
-        };
-        podcast = parsedPodcast;
+        podcast = await res.json();
       }
     } catch (error) {
       console.error("Failed to fetch podcast:", error)

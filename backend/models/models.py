@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from ulid import ULID
-from .database import Base
+from backend.core.database import Base
 
 def generate_ulid():
     """Generate a new ULID string."""
@@ -39,5 +39,6 @@ class Podcast(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     title = Column(String, nullable=True)
     duration = Column(Integer, default=0)
+    requirements = Column(String, nullable=True)  # User customization instructions
     owner_id = Column(String(26), ForeignKey("users.id"))
     owner = relationship("User", back_populates="podcasts")

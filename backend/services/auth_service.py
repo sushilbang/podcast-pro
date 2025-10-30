@@ -6,7 +6,7 @@ import jwt
 import logging
 from typing import Dict, Any
 from fastapi import HTTPException
-from .config import get_settings
+from backend.core import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -32,12 +32,14 @@ class AuthService:
         try:
             # Verify signature using Supabase JWT secret (HS256 algorithm)
             # Supabase uses HS256 algorithm by default
+            # Validate the audience claim - should be "authenticated"
             decoded = jwt.decode(
                 token,
                 settings.SUPABASE_JWT_SECRET,
-                algorithms=["HS256"]
+                algorithms=["HS256"],
+                audience=settings.SUPABASE_JWT_AUDIENCE,
+                options={"verify_aud": True}
             )
-            logger.info(f"[AUTH] ✓ JWT signature verified for user: {decoded.get('sub')}")
             return decoded
 
         except jwt.ExpiredSignatureError as e:
@@ -45,6 +47,7 @@ class AuthService:
             raise HTTPException(status_code=401, detail="Token expired") from e
         except jwt.InvalidSignatureError as e:
             logger.warning(f"[AUTH] ✗ Invalid token signature: {str(e)}")
+            logger.warning(f"[AUTH] Secret key length: {len(settings.SUPABASE_JWT_SECRET)}")
             raise HTTPException(status_code=401, detail="Invalid token signature") from e
         except jwt.DecodeError as e:
             logger.warning(f"[AUTH] ✗ Invalid token format: {str(e)}")
@@ -54,6 +57,7 @@ class AuthService:
             raise HTTPException(status_code=401, detail="Invalid token") from e
         except Exception as e:
             logger.error(f"[AUTH] ✗ Unexpected authentication error: {str(e)}")
+            logger.error(f"[AUTH] Secret available: {bool(settings.SUPABASE_JWT_SECRET)}")
             raise HTTPException(status_code=401, detail="Authentication failed") from e
 
     @staticmethod

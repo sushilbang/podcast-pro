@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 
 if not ELEVENLABS_API_KEY:
-    logger.warning("[ELEVENLABS] ⚠️ No API key provided. Credits will be unavailable.")
+    logger.warning("[ELEVENLABS] No API key provided. Credits will be unavailable.")
     elevenlabs_client = None
 else:
     elevenlabs_client = ElevenLabs(api_key=ELEVENLABS_API_KEY)

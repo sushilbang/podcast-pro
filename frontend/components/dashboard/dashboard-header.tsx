@@ -34,7 +34,7 @@ export function DashboardHeader() {
           return
         }
         console.log("Logout successful, redirecting...")
-        toast.success("Logged out successfully")
+        toast.message("Logged out successfully")
         router.replace("/")
       } catch (error) {
         console.error("Unexpected logout error:", error)

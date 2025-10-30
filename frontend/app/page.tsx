@@ -213,7 +213,7 @@ export default function Page() {
           display: grid;
           grid-template-columns: 1fr;
           gap: 12px;
-          max-width: 1400px;
+          max-width: 1000px;
           width: 100%;
           margin: 0 auto;
           position: relative;
@@ -228,7 +228,7 @@ export default function Page() {
           border-radius: 16px;
           position: relative;
           overflow: hidden;
-          min-height: 320px;
+          min-height: 180px;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
@@ -280,11 +280,10 @@ export default function Page() {
         }
 
         .bento-canvas {
-          top: 0;
-          left: 0;
           width: 100%;
-          height: 100%;
+          height: auto;
           z-index: 1;
+          margin-top: 8px;
         }
 
         /* ===== CTA SECTION (Mobile First) ===== */
@@ -398,7 +397,7 @@ export default function Page() {
           }
 
           .bento-item {
-            min-height: 360px;
+            min-height: 220px;
             padding: 18px;
           }
 
@@ -502,14 +501,14 @@ export default function Page() {
           }
 
           .bento-grid {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 18px;
             padding: 0 32px 50px;
-            max-width: 1200px;
+            max-width: 1000px;
           }
 
           .bento-item {
-            min-height: 400px;
+            min-height: 240px;
             padding: 20px;
           }
 
@@ -606,14 +605,14 @@ export default function Page() {
           }
 
           .bento-grid {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             padding: 0 40px 60px;
-            max-width: 1400px;
+            max-width: 1000px;
           }
 
           .bento-item {
-            min-height: 420px;
+            min-height: 260px;
             padding: 24px;
           }
 
@@ -698,7 +697,7 @@ export default function Page() {
           }
 
           .bento-item {
-            min-height: 420px;
+            min-height: 260px;
             padding: 28px;
           }
 
@@ -739,7 +738,7 @@ export default function Page() {
             POD
           </div>
           <div className="nav-links">
-            <Link href="/auth/login">Get Started</Link>
+            <Link href="/login">Get Started</Link>
             <Link href="/demo">Watch Demo</Link>
           </div>
         </div>
@@ -750,6 +749,38 @@ export default function Page() {
           <h2>
             If you&apos;re gonna spend time on short content, <span style={{ fontStyle: "italic", fontWeight: "500" }}>honey</span>, it better be worth the listen.
           </h2>
+          <a
+            href="https://github.com/sushilbang/podcast-pro"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-block",
+              marginTop: "24px",
+              padding: "10px 20px",
+              backgroundColor: "black",
+              color: "white",
+              textDecoration: "none",
+              borderRadius: "8px",
+              fontWeight: "600",
+              fontSize: "14px",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              transition: "all 0.3s ease",
+              border: "none",
+              cursor: "pointer"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 6px 16px rgba(0, 0, 0, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "black";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
+            ★ Star on GitHub
+          </a>
         </div>
         <div className="hero-img">
           <Image
@@ -766,40 +797,40 @@ export default function Page() {
         <h2 className="features-title">What do <span id="feat-pod">POD</span> do?</h2>
         <p className="features-subtitle">Have a look on what pod can do for you</p>
         <div className="bento-grid">
-          <div className="bento-item">
+          {/* <div className="bento-item">
             <h3>PDF Upload</h3>
             <p className="feature-description">Easily upload your PDF documents with an intuitive interface and real-time upload feedback.</p>
             <canvas className="bento-canvas" id="canvas-upload" width="400" height="300"></canvas>
-          </div>
+          </div> */}
 
           <div className="bento-item">
             <h3>Audio Conversion</h3>
             <p className="feature-description">Convert your PDF content to high-quality audio using advanced AI-powered text-to-speech technology.</p>
-            <canvas className="bento-canvas" id="canvas-audio-conversion" width="400" height="300"></canvas>
+            <canvas className="bento-canvas" id="canvas-audio-conversion" width="180" height="120"></canvas>
           </div>
 
-          <div className="bento-item">
+          {/* <div className="bento-item">
             <h3>Progress Tracking</h3>
             <p className="feature-description">Monitor your episode generation in real-time with clear step-by-step progress indicators.</p>
-            <canvas className="bento-canvas" id="canvas-progress-tracking" width="400" height="300"></canvas>
-          </div>
+            <canvas className="bento-canvas" id="canvas-progress-tracking" width="180" height="120"></canvas>
+          </div> */}
 
           <div className="bento-item">
             <h3>Short-Form Creator</h3>
             <p className="feature-description">Automatically create bite-sized 5-10 minute episodes perfect for on-the-go listening.</p>
-            <canvas className="bento-canvas" id="canvas-short-form" width="400" height="300"></canvas>
+            <canvas className="bento-canvas" id="canvas-short-form" width="180" height="120"></canvas>
           </div>
 
           <div className="bento-item">
             <h3>Premium Quality</h3>
-            <p className="feature-description">Enjoy studio-grade audio quality with advanced sound processing and optimization.</p>
-            <canvas className="bento-canvas" id="canvas-quality" width="400" height="300"></canvas>
+            <p className="feature-description">Deliver studio-grade audio quality with advanced sound processing and optimization.</p>
+            <canvas className="bento-canvas" id="canvas-quality" width="180" height="120"></canvas>
           </div>
 
           <div className="bento-item">
             <h3>Multi-Voice Support</h3>
             <p className="feature-description">Create dynamic content with multiple voice options for a more engaging listening experience.</p>
-            <canvas className="bento-canvas" id="canvas-multi-voice" width="400" height="300"></canvas>
+            <canvas className="bento-canvas" id="canvas-multi-voice" width="180" height="120"></canvas>
           </div>
         </div>
       </section>
@@ -842,9 +873,9 @@ class BentoCanvasAnimations {
 
   setupCanvases() {
     const canvasIds = [
-      'canvas-upload',
+      // 'canvas-upload',
       'canvas-audio-conversion',
-      'canvas-progress-tracking',
+      // 'canvas-progress-tracking',
       'canvas-short-form',
       'canvas-quality',
       'canvas-multi-voice'
@@ -912,15 +943,15 @@ class BentoCanvasAnimations {
     this.stopAnimation(canvasId)
 
     switch (canvasId) {
-      case 'canvas-upload':
-        this.animateUpload(canvasId)
-        break
+      // case 'canvas-upload':
+      //   this.animateUpload(canvasId)
+      //   break
       case 'canvas-audio-conversion':
         this.animateAudioConversion(canvasId)
         break
-      case 'canvas-progress-tracking':
-        this.animateProgressTracking(canvasId)
-        break
+      // case 'canvas-progress-tracking':
+      //   this.animateProgressTracking(canvasId)
+      //   break
       case 'canvas-short-form':
         this.animateShortForm(canvasId)
         break
@@ -1333,12 +1364,6 @@ class BentoCanvasAnimations {
       }
 
       ctx.globalAlpha = 1
-      ctx.fillStyle = '#000000'
-      ctx.font = `sans-serif`
-      ctx.textAlign = 'center'
-      ctx.font = `${Math.max(14, Math.round(width * 0.045))}px sans-serif`
-      ctx.textBaseline = 'top'
-      ctx.fillText('Premium Quality Audio', width * 0.5, height * 0.85)
 
       this.animations[canvasId] = requestAnimationFrame(animate)
     }
