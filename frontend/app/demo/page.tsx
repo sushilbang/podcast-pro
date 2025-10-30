@@ -72,7 +72,7 @@ Today, Hampi is a UNESCO World Heritage Site, a sprawling open-air museum of rui
               </p>
               <div className="flex gap-4 justify-center">
                 <Button size="lg" asChild>
-                  <Link href="/login" className="font-inter font-semibold">Get Started</Link>
+                  <Link href="/auth/login" className="font-inter font-semibold">Get Started</Link>
                 </Button>
                 <Button variant="outline" size="lg" asChild>
                   <Link href="/" className="font-inter font-semibold">Learn More</Link>

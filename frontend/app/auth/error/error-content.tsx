@@ -26,12 +26,12 @@ export default function AuthErrorContent() {
         </Alert>
 
         <div className="space-y-3">
-          <Link href="/login" className="block">
+          <Link href="/auth/login" className="block">
             <Button className="w-full font-inter font-semibold">
               Back to Login
             </Button>
           </Link>
-          <Link href="/signup" className="block">
+          <Link href="/auth/signup" className="block">
             <Button variant="outline" className="w-full font-inter font-semibold">
               Create New Account
             </Button>

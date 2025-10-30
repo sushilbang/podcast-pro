@@ -10,7 +10,7 @@ export default async function PodcastsPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return redirect("/login")
+    return redirect("/auth/login")
   }
 
   const {

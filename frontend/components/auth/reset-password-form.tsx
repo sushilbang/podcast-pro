@@ -64,7 +64,7 @@ export function ResetPasswordForm() {
 
       // Redirect to login after 2 seconds
       setTimeout(() => {
-        router.push("/login")
+        router.push("/auth/login")
       }, 2000)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")

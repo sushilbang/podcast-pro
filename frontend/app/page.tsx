@@ -738,7 +738,7 @@ export default function Page() {
             POD
           </div>
           <div className="nav-links">
-            <Link href="/login">Get Started</Link>
+            <Link href="/auth/login">Get Started</Link>
             <Link href="/demo">Watch Demo</Link>
           </div>
         </div>
@@ -840,7 +840,7 @@ export default function Page() {
           <h2>Think your PDFs can handle a fierce audio makeover?</h2>
           <p>Quit stalling and sass those pages into ear-popping episodes already!</p>
           <button className="cta-button">
-            <Link href="/login" style={{ color: 'white', textDecoration: 'none' }}>
+            <Link href="/auth/login" style={{ color: 'white', textDecoration: 'none' }}>
               Get Started
             </Link>
           </button>
